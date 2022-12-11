@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Note App</title>
+    <script src="https://unpkg.com/vue@next"></script>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/> 
+    <link rel="shortcut icon" href="#">
+  </head>
+  <body>
+    
+    <div id="app">
+
+
+
+        
+        <div class="topBox"> <button @click="play">{{playStatus?'Pause':'Play'}}</button>  <input type="text"  /> <input type="text" v-model="playbackRate" /></span></div>
+        
+        <div class="leftBox">
+          <video ref="video" style="width: 100%;" id="videoId" src="\media\ozge_12.mp4" @click="play"></video>
+          <div class="slider">
+            <input type="range" min="0" :max="sliderMax" :value="sliderValue" @input="setCurrentTime($event)">
+            <p id="rangeValue">{{formattedTime}}</p>
+            </div>
+        </div>
+        <div class="rightBox">
+        
+        </div>
+        
+      
+
+
+
+
+    </div>
+   
+    <script src="scripts/app.js"></script>
+  </body>
+</html>
