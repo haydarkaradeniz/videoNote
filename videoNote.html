@@ -19,7 +19,7 @@
         <div class="topBox"> <button @click="play">{{playStatus?'Pause':'Play'}}</button>  <input type="text"  /> <input type="text" v-model="playbackRate" /></span></div>
         
         <div class="leftBox">
-          <video ref="video" style="width: 100%;" id="videoId" src="\media\ozge_12.mp4" @click="play"></video>
+          <video ref="video" style="width: 100%;" id="videoId" src="\videoNote\media\Snowman.mp4" @click="play"></video>
           <div class="slider">
             <input type="range" min="0" :max="sliderMax" :value="sliderValue" @input="setCurrentTime($event)">
             <p id="rangeValue">{{formattedTime}}</p>

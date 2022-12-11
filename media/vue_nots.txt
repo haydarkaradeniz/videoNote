@@ -1,0 +1,193 @@
+gün3 2:00:00
+
+
+??? force update ??? this.$forceUpdate();
+
+Spread syntax (...) bir objeyi başka bir objeye kopyalamak için kullanır. deep copy gibi. Array'lerde de çalışır. Detaylı bakabilirsin	
+	let obj1 = { foo: 'bar', x: 42 };
+	let obj2 = { ...obj1 }; => obj1'in kopyası
+	let obj3 = { ...obj1, z:13 }; => obj1'in kopyası, ek bir field z var
+
+
+Genel 
+-html kısmı vue template, js kısmı vue-instance olarak geçer
+-string interpolation => {{message}} şeklinde yazılır 
+-string interpolation içinde tek satırlık script yazılabilir, method çağırılabilir
+-stringlerde ' değil de ` kullanırsan (yan tek tırnak) içeriye değişkeni ${} ile atayabilirsin . Örneğin `###-${textValue}-###` gibi
+-event'e method bağlarken v-on ile bağlıyoruz. Örneğin  v-on:keydown.enter="writeMessage"
+-v-on yerine kısa olarak @ kullanabilirsin. Örneğin  @keydown.enter="writeMessage"
+-v-bind yerine kısa olarak sadece : kulalnabilirsin. Örneğin v-bind:href="counter" veya :href="counter"
+-event'ler içinde de tek satırlık javascript yazabilirsin. Örneğin @click="counter++" veya v-on:click="counter++"
+-method parametre almıyorsa () yazmana gerek yok. Örneğin v-on:click="inc()" veya v-on:click="inc"
+-components altına klasör koyar ve içine index.vue tanımlarsan import olarak klasör adını import etmen yeterli.
+
+
+Events
+-default event $event olarak yazdığımız metodlara geçer, hiçbir parametre vermezsek ilk parametre bu olarak kabul eder
+-bazı eventler event modifier alır, mesela keydown event'i enter modifier'ını alabilir. keydown.enter şeklinde kullanılırsa sadece enter halinde event tetiklenir.
+
+
+LifeCycle
+-sayfa açılırken beforeCreate->created->beforeMount->mounted çalışr. 
+-Sayfada değişiklik olduğunda beforeUpdage->updated çalışır.
+-eğer unmount edilirse beforeUnmount->unmounted çalışır.
+-lifecycle hook'ları methods içine değil method ile aynı seviyede yazılır.
+
+Reactivity
+-computed: methods ile aynı seviyede , methods gibi yazılır. Burada yazdığımız methodlarda içerisinde kullanılan this ile erişilen değerlerde bir değişiklik varsa otomatik olarak çalışır.
+-computed'lar parametre alamaz !!!! fonksiyondur ama değişken gibi kullanılır.
+-computed'ların değer döndürmesi zorunludur!!!
+-watch: methods ile aynı seviyede yazılır.
+-watch'lar değer dönmez!!! computed bir metodu veya data içerisindeki bir property'i izlemek için kullanılır.
+-mesela data içindeki counter'ı izlemek için  counter(newValue, oldValue) 
+-computed bir method'u izliyorsan, metodun dönüş değeri farklılaştığı zaman çalışır. metod içindeki dğerler değişse bile return ettiği değer değişmiyorsa çalışmaz.
+-watcher'da bir obje dinliyorsak ve derinlemesine dinlemesini istiyorsak deep kullaanmlaıyız
+	newItem(newValue) { } yerine newItem: {deep: true, handler(newValue) { }}
+	
+
+direktives
+-v-bind attribute'ler için örneğin image'in src'si veya linkin src'si . Şu şekilde v-bind:href="counter"
+-v-on eventler için
+-v-model inputlara bir değişkeni bind etmek için (ngmodel gibi). Çift taraflı çalışır. Örneğin   <input type="text" v-model="message" /> Tek taraflı yapmak istersen şu şekilde olurdu <input type="text" :value="message"  @input="message = $event.target.value" />
+-v-if ng-if gibi çalışır.
+-v-if ten hemen sonra v-else kullanırsan aksi durumda çalışır. v-else'e eşittir ile condition yazmazsın zaten v-if'in değili olarak çalışır
+-v-if ten sonra v-else-if de kullanabilirsin, sonuna v-if gelebilir, birden fazla condition için
+-v-show v-if gibi çalışır. Ama render'ı kaldırmaz görünmez yapar (display:none)
+-v-for ng-for gibi çalışır. Örneğin v-for="courseItem in courseList"
+-v-for ile döndüğün değerlerin içinde bir key olması lazım (cli da kızar). v-for="courseItem in courseList" :key="courseItem.id"
+
+dynamic class
+-:class="{class_adı:class_koşulu}" mesela :class="{cvk-box:true}" => obje notasyonu
+-tek bir stringe de bağlayabilirsin mesela :class="boxClasses"  =>  boxClasses js'de data içindeki bir property
+-tek bir string'de vereceksen liste olarak verebilirsin :class="[class1,class2]"
+-style için de obje veya string notasyonu kullanabilirsin. Yalnız obje notasyonunda key css attribute'ü value'sü ise data içindeki property olablir. Örneğin :style="{width:widthProperty}"
+
+types
+<input type="text" v-model="todoText" />
+<button id="todoAddBtn" @click="addTodo">Add</button>
+
+components
+-compoentler kendi dünyasında çalışan küçük bir vue uygulaması olarak düşünülebilir
+-cdn için app.component("component-adı",{options}); şeklinde yazdılır. Options içinde : data, methods, watch , template yer alır.
+-cli için components: {} içinde kullanılacak vue dosyasında tanımlanır.
+
+component'ler arası iletişim (vue2 ve vue3)
+-Parent>> Child(props) veya Child>>Parent(custom event) ile yapılır
+-child ile child arasında ilişki vue2 de event bus ile yapılıyordu, vue3'te kaldılrıldı
+-*props yönntemi => props içindeki değişken, data içindeki değişkenler gibi string interpolation ile veya method'lar içinde kullanılabilir
+	-parent dosyada component çağırırken property olarak verilir => <course-list-item courseTitle="softtech eğitimi"> </course-list-item> veya dinamik içerik için :courseTitle="courseItem"
+	-child dosyada script içinde props : ["courseTitle"] veya props : { courseTitle : "" } şeklinde tanımlanabilir.
+	-parent'dan child'daki bir fonksiyonu çağıramazsın fakat child'a fonksiyon gönderebilirsin. props ile şu şekilde
+		props: {                                              
+			onSave: {
+			  type: Function,             veya            props: ["clientList", "onSave"],
+			  required: true
+			}
+		  },
+-*custom event yöntemi => $emit ile event üreterek oluyor
+	-child dosyada => this.$emit("custom-event-adi", "eventdegeri");
+	-parent dosyada => component içinde custom event için bir aksiyon alınır, method çağırılabilir. <course-list-item @custom-event-adi="parent_method"> </course-list-item> 
+
+
+component'ler arası iletişim Proive Inject (vue3'te var) yapısı
+-provide edilecek data'yı mutlaka obje olsun, mesela sadece liste ise bir obje içine al
+-parent'da provide yapılır. data seviyesinde data gibi çalışır. child'larda inject etmek istediğimiz datayı burda tanımlarız. props'tan farklı olarak birkaç seviye
+alttaki child'lar tarafından da kullanılabilir. 
+	parent'da provide() { return {courseList : []}}
+	child'da inject : ["courseList],
+-fonksiyonu da provide yapabilirsin, child'lar tarafından inject edilebilir
+	parent => provide() {return { deleteItem: this.deleteItem}} sadece fonksiyon adı yazılır, () veya parametreleri verilmez
+	child => inject : ["deleteItem"],
+	
+
+dinamik component
+-eğer bir şarta bağlı olarak farklı componentleri göstereceksen dinamik component kullanabilirsin. component tagi ile kullanılır. vue.js tanır. extradan tanıtmaya gerek duymaz.
+-is ile içine çağıracağı component adını alır
+-kullanımı => <component :is="'red'"></component>
+-dinamik compnent'lere normal compoent'ler gibi props ile değer gönderebilirsin
+-dinamik component'ler değiştiğinde bir önceki compoent'i siler, eğer içindeki dataları saklamak istiyorsan keep-alive içinde kullanabilirsin
+	<keep-alive>  <component :is="activeComponent"></component> </keep-alive>
+-keep-alive içinde kullanımda mounted sadece bir sefer çalışır
+-keep-alive kullanımında ikinci kez çağırıldığını anlamak için iki yeni life cycle hook daha gelir => activated, deactivated
+
+
+http request 
+-axios - npm kullanabilirsin: axios.get, axios.post, axios.delete metodları var. kurulumu aşağıda
+
+
+vue router
+-https://v3.vuejs.org/guide/migration/introduction.html#vue-cli vue3 sayfasından aratırsan hangi versiyonu kullandığını bulabilirsin 4.0.12 için 
+-burada dökümantasyondan installation'a gelip install npm sentaksını bulabilirsin, --save unutma ki package.json dosyan güncellensin
+-npm install --save vue-router@4 (proje folder2ı içinde)
+-route.js oluştur
+-router için hashmode tanımlamalısın, yoksa bu dinamik yönlendirmeyi sunucu tarafı anlamaz ve hata verir. web sayfalarında gördüğün # web HASH history anlamındadır.
+-createWebHashHistory yerine createWebHistory kullanırsan # gider ama engineX kullanman lazım yoksa sayfa build ettikten sonra kullanırken patlar.
+-vuejs tarafından tanımlı router-link ile yönlendirme yapabilirsin. =>   <router-link active-class="active" :to="{ name: 'Home' }"> Home </router-link> veya  <router-link active-class="active" to="/about"> About </router-link>
+-this.$router.push("/about");  veya       this.$router.push({ name: "About" }); veya this.$router.push({ path: "/about" }); gibi js içinden de yönlendirme yapabilirsin.
+-beforeRouteUpdate diye yeni bir hook life cycle gelir. url parameter değiştiğinde mounted route değişmediği için çalışmaz ama bu çalışır
+-beforeRouteEnter ve beforeRouteLeave navigation guard'lar olarak geçen life cycle hook'ları. Route'dan önce bir kontrol yapmamız gerekiyorsa kullanılabilir.
+-next callback fonksiyonu içinde vue instance'ı içinde bir değere ulaşmak istiyorsan daha created olmadığı için this. değil vm. nokta kullanılır.
+
+
+vuex (vue store) - (https://next.vuex.vuejs.org/installation.html)
+-store state deposu olarka da adlandırılır, burdaki state değişken demek
+-store.js oluştur
+-store client bazlı tutulur ve sayfa yenilendiğinde sıfırlanır, kalıcı olması için vuex-persist kullanabilirsin
+-mutation'lar senkron güncelleme içindir. İçinde asenkron (servis çağrımı gibi) bir yapı kullanırsan state'in güncelleneceğini garanti etmez
+-asenkron yapılar için actions kullanılır, konsept olarak mutations ile aynı
+-mutation, getter veya actions için namespaced kullanmazsan modülü ismini path olarak eklemez. onu true yap
+
+
+--------------------------------------------------------
+-Node js kurulumu
+	Node.js indir ve kur
+	kurulum sonrası node -v komutu ile test edebilirsin
+
+--------------------------------------------------------
+
+-typescript kurulumu
+	npm install -g typescript
+	
+--------------------------------------------------------
+
+-vue js cli kurulumu
+	npm install -g @vue/cli
+	kurulum sonrası vue --version ile test edebilirsin
+	
+-vue js yeni proje oluşturma
+	vue create hello-world
+	cd hello-world
+	npm run serve
+	
+-çalıştırma=> npm run serve
+
+*babel: javascript'leri browser'lar için uyumlu hale getiren library
+
+--------------------------------------------------------
+-axios kurulumu (project folder'ında)
+	install --save axios
+--------------------------------------------------------
+-vuewx kurulumu (project folder2ında)	
+	npm install vuex@next --save
+--------------------------------------------------------
+-typicode jsonholder kurulumu (fake rest servis) github sayfası https://github.com/typicode/json-server
+	npm install -g json-server (bilgisayara global olarak kur)
+	projenin içinde db.json dosyası oluştur. (proje dizini altında)
+	db.json içi örneği { "customers : []}
+	sonra bir terminal açıp , proje dizininde => json-server --watch db.json olarak aktive edebilirsin.
+
+--------------------------------------------------------
+
+-angular cli kurulumu (https://angular.io/cli(
+	npm install -g @angular/cli
+	kurulum sonrası test için ng help veya ng generate --help
+
+-angular yeni proje oluşturma
+	ng new my-first-project
+	cd my-first-project
+	ng serve --open
+	
+-angular yeni component oluşturma
+	ng generate component budget-automation
+	
+--------------------------------------------------------
