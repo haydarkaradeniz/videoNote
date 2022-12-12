@@ -1,3 +1,5 @@
+
+
 const app = Vue.createApp({
   data() {
     return {
@@ -5,10 +7,27 @@ const app = Vue.createApp({
       video: null,
       playbackRate: 1,
       sliderMax: 0,
-      sliderValue: 0
+      sliderValue: 0,
+      frameList : [],
+      config : {
+        leftBoxWidth : 60,
+        rightBoxWidth : 40,
+        title: "untitled"
+      }
     };
   },
+  mounted() {
+    //initPage, configuratsyon dosyasi okunacak
+    console.log("mounted Çalıştı");
+  },
   methods: {
+    addFrame(time) {
+      var frame ={};
+      frame.id = this.frameList.length + 1;
+      frame.order = this.frameList.length + 1;
+      frame.time = time;
+      this.frameList.push(frame);
+    },
     play() {
       this.playStatus = !this.playStatus;
       this.video = this.$refs.video;
@@ -17,6 +36,9 @@ const app = Vue.createApp({
         this.sliderMax = this.video.duration;
         console.log("haydarrr" + this.sliderMax)
         this.playBar();
+        var x = new Frame();
+        
+        
       }
     },
     playBar() {
