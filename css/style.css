@@ -7,6 +7,25 @@ body {
 .pointer {
   cursor : pointer;
 }
+
+.disable {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.playbackRateBack {
+  background-image : url("\\videoNote\\images\\blank-circle.svg");
+  width: 40px;
+  height: 40px;
+}
+.playbackRateFront {
+  font-size : 21px;
+  color:rgb(30, 51, 88);
+  font-weight: bolder;
+  position: relative;
+  top:9px;
+  left: 6px;
+}
 .projectTitle {
   margin-left: 15px;
   font-size: 26px;
