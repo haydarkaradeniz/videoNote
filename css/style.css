@@ -1,6 +1,7 @@
 
 body {
-  background-color: rgb(30, 30, 30);
+  /*background-color: rgb(30, 30, 30); #F5FCFF;*/
+  background-color: #F5FCFF;
   color: #fff;
   }
 
@@ -33,6 +34,10 @@ body {
 
 .margin-l5 {
   margin-left: 5px;
+}
+
+.margin-r5 {
+  margin-right: 5px;
 }
 
 .button-3 {
@@ -95,7 +100,7 @@ body {
       box-shadow: 0px 15px 40px #7E6D5766;*/
   margin-left: 1%;;
   width: 98%;
-  height: 40px;
+  height: 30px;
   margin-top: 5px;
   margin-bottom: 5px;  
   border-radius: 20px;
@@ -103,17 +108,17 @@ body {
   align-items: center;
   }
   .slider p {
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 600;
   font-family: Open Sans;
     /*padding-left: 30px;*/
-  color: black;
+  color: rgb(30, 30, 30);
   }
   .slider input[type="range"] {
   -webkit-appearance:none !important;
   width: 90%;
   height: 2px;
-  background: black;
+  background: rgb(30, 30, 30);
   border: none;
   outline: none;
   }
@@ -121,13 +126,13 @@ body {
   -webkit-appearance: none !important;
   width: 20px;
   height:20px;
-  background: black;
-  border: 2px solid black;
+  background: rgb(30, 30, 30);
+  border: 2px solid rgb(30, 30, 30);
   border-radius: 50%;
   cursor: pointer;
   }
   .slider input[type="range"]::-webkit-slider-thumb:hover {
-  background: black;
+  background: rgb(30, 30, 30);
   }
 
   .topBox {
@@ -143,15 +148,14 @@ body {
 
   .leftBox {
     position: absolute;
-    top: 70px;
     min-height: 150px;
     border-radius:5px;
     box-shadow: 0 4px 8px 0 rgba(150, 150, 150, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.79);
+
   }
 
   .rightBox {
     position: absolute;
-    top: 70px;
     min-height: 150px;
     border-radius:5px;
     box-shadow: 0 4px 8px 0 rgba(150, 150, 150, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.79);

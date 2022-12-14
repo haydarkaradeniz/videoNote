@@ -7,13 +7,14 @@ const app = Vue.createApp({
       playbackRate: 1.0,
       sliderMax: 0,
       sliderValue: 0,
+      menuVisible: false,
       frameList : [],
       config : {
         leftBoxWidth : 60,
         rightBoxWidth : 40,
         title: "untitled",
         videoSrc : null,
-
+        sliderRefreshTime : 1000,
       }
     };
   },
@@ -30,6 +31,34 @@ const app = Vue.createApp({
       frame.time = time;
       this.frameList.push(frame);
     },
+    saveProject() {
+      var link = this.$refs.download;
+      var project = {};
+      project.config = this.config;
+      var content = JSON.stringify(project);      
+      var fileName = "project.json";
+      link.setAttribute('href',encodeURI('data:text/js;charset=utf-8,' + content));		
+      link.setAttribute('download', fileName);
+      link.click();
+      
+      
+/*
+      const data = { fileName: "bla bla", content: content };
+      //axios.post("saveFile.php", data,  { "content-type": "application/json" })
+      axios.get('saveFile.php', {
+        params: {
+          fileName: "blabla.json", content: "content"
+        }
+      })
+        .then(response => 
+          console.log("response:" + response)
+          )
+        .catch(error => console.log(error));
+
+      */
+
+      
+    },
     updatePlaybackRate(sign) {
       if(sign == 0) {
         this.playbackRate = 1.0;
@@ -41,14 +70,15 @@ const app = Vue.createApp({
       this.video.playbackRate = this.playbackRate;
     },
     loadVideo() {
-      this.config.videoSrc =  "\\videoNote\\media\\Snowman.mp4";     
-      this.sliderMax = this.video.duration;
-      this.videoLoaded = true;
-      console.log("haydarrr" + this.sliderMax); slider max null
+      this.config.videoSrc =  "\\videoNote\\media\\Snowman.mp4";         
+      this.videoLoaded = true;     
     },
     playVideo() {     
       if(this.videoLoaded)  {
         this.playStatus = !this.playStatus;  
+        if(this.sliderMax == 0 ) {
+          this.sliderMax = this.video.duration;
+        }
         if(this.playStatus) {
           this.video.play(); 
           this.playBar();
@@ -68,7 +98,12 @@ const app = Vue.createApp({
     playBar() {
       if(this.playStatus) {
           this.sliderValue = this.video.currentTime;
-          setTimeout(()=> {this.playBar()},1000);         
+          if(this.sliderValue >= this.sliderMax) {
+            this.playStatus = false;
+          } else {
+            setTimeout(()=> {this.playBar()},this.config.sliderRefreshTime); 
+          } 
+          console.log("helloo" + this.sliderValue);       
       }      
     },
     setCurrentTime(evt) {
@@ -78,14 +113,12 @@ const app = Vue.createApp({
   computed: {
     formattedTime() {
       var utcString = (new Date(Math.floor(this.sliderValue) * 1000)).toUTCString().match(/(\d\d:\d\d:\d\d)/)[0];
-      console.log("blabla" + this.sliderValue);
       return utcString.substring(3) + "." + ("000"+parseInt((this.sliderValue*1000)%1000)).slice(-3);
     }
   },
   watch: {
     playbackRate(newValue, oldValue)  {
       console.log("playbackRate New => Old", oldValue, newValue);
-      //this.video.playbackRate = newValue || 1;
     },
   },
 });

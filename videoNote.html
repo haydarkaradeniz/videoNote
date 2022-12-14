@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Video Note App</title>
     <!--script src="https://unpkg.com/vue@next"></script-->
+    <!--script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script-->
     <script src="scripts/vue.global.js"></script>
+    <script src="scripts/axios.js"></script>
     <link type="text/css" rel="stylesheet" href="css/style.css"/> 
     <link rel="shortcut icon" href="#">
   </head>
@@ -17,19 +19,21 @@
 
 
         
-        <div class="topBox"> 
+        <div class="topBox" v-if="config.menuVisible"> 
           <button class="button-3 margin-l5">LOAD</button>
-          <button class="button-3 margin-l5">SAVE</button>
+          <button class="button-3 margin-l5" @click="saveProject">SAVE</button>
           <button class="button-3 margin-l5">PREVIEW</button>
-          <span class="projectTitle">{{config.title}}</span>        
-        <div class="leftBox" :style="{width:(config.leftBoxWidth - 2) + '%', left:'1%'}">
-          <div class="margin-l5">           
-            <img src="\videoNote\images\open.svg" class="pointer" alt="open video" @click="loadVideo"/>
-            <img src="\videoNote\images\backward.svg" :class="{disable:!videoLoaded || sliderValue<playbackRate, pointer:videoLoaded && sliderValue>=playbackRate}" alt="backward video" @click="backwardVideo"/>
-            <img :src="!playStatus?'\\videoNote\\images\\play.svg':'\\videoNote\\images\\pause.svg'" :class="{disable:!videoLoaded, pointer:videoLoaded}"  alt="play video" @click="playVideo" />
+          <span class="projectTitle">{{config.title}}</span>   
+        </div>     
+        <div class="leftBox" :style="{width:(config.leftBoxWidth - 2) + '%', left:'1%', top:config.menuVisible?'60px':'10px'}">
+          <div class="margin-l5" style="padding: 5px;">          
+            <img src="\videoNote\images\menu.svg" class="pointer" alt="open menu" width="40" @click="config.menuVisible=!config.menuVisible"/> 
+            <img src="\videoNote\images\open.svg" class="pointer margin-l5" alt="open video" @click="loadVideo"/>
+            <img src="\videoNote\images\backward.svg" class="margin-l5" :class="{disable:!videoLoaded || sliderValue<playbackRate, pointer:videoLoaded && sliderValue>=playbackRate}" alt="backward video" @click="backwardVideo"/>
+            <img :src="!playStatus?'\\videoNote\\images\\play.svg':'\\videoNote\\images\\pause.svg'" class="margin-l5" :class="{disable:!videoLoaded, pointer:videoLoaded}"  alt="play video" @click="playVideo" />
             <img src="\videoNote\images\forward.svg" style="float: right;" class="pointer" @click="updatePlaybackRate(1)"/>
-            <span style="float: right;" class="playbackRateBack pointer" @click="updatePlaybackRate(0)"><span  class="playbackRateFront">{{parseFloat(playbackRate).toFixed(1)}}</span></span>
-            <img src="\videoNote\images\backward.svg" class="pointer" style="float: right;" @click="updatePlaybackRate(-1)"/>
+            <span style="float: right;" class="playbackRateBack pointer margin-r5" @click="updatePlaybackRate(0)"><span  class="playbackRateFront">{{parseFloat(playbackRate).toFixed(1)}}</span></span>
+            <img src="\videoNote\images\backward.svg" class="pointer margin-r5" style="float: right;" @click="updatePlaybackRate(-1)"/>
 
           </div>
           <video ref="video" style="width: 100%;" id="videoId" :src="config.videoSrc" @click="play"></video>
@@ -38,7 +42,7 @@
             <p id="rangeValue">{{formattedTime}}</p>
             </div>
         </div>
-        <div class="rightBox"  :style="{width:(config.rightBoxWidth-1) + '%', left:(config.leftBoxWidth)+'%'}">
+        <div class="rightBox"  :style="{width:(config.rightBoxWidth-1) + '%', left:(config.leftBoxWidth)+'%', top:config.menuVisible?'60px':'10px'}">
         
         </div>
         
@@ -47,8 +51,8 @@
 
 
 
-    </div>
-   
+    
+      <a ref="download" id="downloadId" href='#'/>
     <script src="scripts/app.js"></script>
   </body>
 </html>
