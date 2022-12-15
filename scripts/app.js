@@ -1,3 +1,14 @@
+/*
+
+commit #15.12.22-01
+
+
+
+
+
+
+*/
+
 const app = Vue.createApp({
   data() {
     return {
@@ -7,21 +18,21 @@ const app = Vue.createApp({
       playbackRate: 1.0,
       sliderMax: 0,
       sliderValue: 0,
-      menuVisible: false,
+      configMenuVisible: false,
       frameList : [],
+      showModal : false,
       config : {
         leftBoxWidth : 60,
         rightBoxWidth : 40,
-        title: "untitled",
         videoSrc : null,
         sliderRefreshTime : 1000,
       }
     };
   },
   mounted() {
-    //initPage, configuratsyon dosyasi okunacak
-    this.video = this.$refs.video;
-    console.log("mounted Çalıştı");
+    this.config = project.config;
+    this.video = this.$refs.video;  
+    this.videoLoaded = true; 
   },
   methods: {
     addFrame(time) {
@@ -35,29 +46,10 @@ const app = Vue.createApp({
       var link = this.$refs.download;
       var project = {};
       project.config = this.config;
-      var content = JSON.stringify(project);      
-      var fileName = "project.json";
+      var content = 'var project = ' + JSON.stringify(project) + ';';   
       link.setAttribute('href',encodeURI('data:text/js;charset=utf-8,' + content));		
-      link.setAttribute('download', fileName);
-      link.click();
-      
-      
-/*
-      const data = { fileName: "bla bla", content: content };
-      //axios.post("saveFile.php", data,  { "content-type": "application/json" })
-      axios.get('saveFile.php', {
-        params: {
-          fileName: "blabla.json", content: "content"
-        }
-      })
-        .then(response => 
-          console.log("response:" + response)
-          )
-        .catch(error => console.log(error));
-
-      */
-
-      
+      link.setAttribute('download', "project.js");
+      link.click();     
     },
     updatePlaybackRate(sign) {
       if(sign == 0) {
@@ -69,10 +61,7 @@ const app = Vue.createApp({
       } 
       this.video.playbackRate = this.playbackRate;
     },
-    loadVideo() {
-      this.config.videoSrc =  "\\videoNote\\media\\Snowman.mp4";         
-      this.videoLoaded = true;     
-    },
+
     playVideo() {     
       if(this.videoLoaded)  {
         this.playStatus = !this.playStatus;  

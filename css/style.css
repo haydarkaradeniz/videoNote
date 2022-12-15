@@ -2,7 +2,7 @@
 body {
   /*background-color: rgb(30, 30, 30); #F5FCFF;*/
   background-color: #F5FCFF;
-  color: #fff;
+  color: rgb(30, 30, 30);
   }
 
 .pointer {
@@ -15,10 +15,44 @@ body {
 }
 
 .playbackRateBack {
-  background-image : url("\\videoNote\\images\\blank-circle.svg");
+  background-image : url("..\\images\\blank-circle.svg");
   width: 40px;
   height: 40px;
 }
+
+.configTitle {
+  position: absolute;
+  top: 10px;
+  margin-left: 15px;
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.config-table {
+  width: 80%;
+  padding-bottom: 30px;
+}
+
+.config-tr {
+  height: 50px;
+}
+
+input[type=text]{
+  width:100%;
+  border:2px solid #aaa;
+  border-radius:4px;
+  margin:8px 0;
+  outline:none;
+  padding:8px;
+  box-sizing:border-box;
+  transition:.3s;
+}
+
+input[type=text]:focus{
+  border-color:dodgerBlue;
+  box-shadow:0 0 8px 0 dodgerBlue;
+}
+
 .playbackRateFront {
   font-size : 21px;
   color:rgb(30, 51, 88);
@@ -26,10 +60,6 @@ body {
   position: relative;
   top:9px;
   left: 6px;
-}
-.projectTitle {
-  margin-left: 15px;
-  font-size: 26px;
 }
 
 .margin-l5 {
@@ -40,56 +70,6 @@ body {
   margin-right: 5px;
 }
 
-.button-3 {
-  appearance: none;
-  background-color: #2ea44f;
-  border: 1px solid rgba(27, 31, 35, .15);
-  border-radius: 6px;
-  box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
-  box-sizing: border-box;
-  color: #fff;
-  cursor: pointer;
-  display: inline-block;
-  font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 20px;
-  padding: 6px 16px;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-.button-3:focus:not(:focus-visible):not(.focus-visible) {
-  box-shadow: none;
-  outline: none;
-}
-
-.button-3:hover {
-  background-color: #2c974b;
-}
-
-.button-3:focus {
-  box-shadow: rgba(46, 164, 79, .4) 0 0 0 3px;
-  outline: none;
-}
-
-.button-3:disabled {
-  background-color: #94d3a2;
-  border-color: rgba(27, 31, 35, .1);
-  color: rgba(255, 255, 255, .8);
-  cursor: default;
-}
-
-.button-3:active {
-  background-color: #298e46;
-  box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
-}
 
 .slider {
   /*position: absolute;
@@ -140,7 +120,7 @@ body {
     top: 10px;
     left: 1%;
     width: 98%;
-    height: 40px;
+    
     border-radius:5px;
     box-shadow: 0 4px 8px 0 rgba(150, 150, 150, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.79);
 
@@ -148,6 +128,7 @@ body {
 
   .leftBox {
     position: absolute;
+    top: 10px;
     min-height: 150px;
     border-radius:5px;
     box-shadow: 0 4px 8px 0 rgba(150, 150, 150, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.79);
@@ -156,7 +137,75 @@ body {
 
   .rightBox {
     position: absolute;
+    top: 10px;
     min-height: 150px;
     border-radius:5px;
     box-shadow: 0 4px 8px 0 rgba(150, 150, 150, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.79);
   }
+
+
+
+  .modal-mask {
+    position: fixed;
+    z-index: 9998;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: table;
+    transition: opacity 0.3s ease;
+  }
+  
+  .modal-wrapper {
+    display: table-cell;
+    vertical-align: middle;
+  }
+  
+  .modal-container {
+    width: 300px;
+    margin: 0px auto;
+    padding: 20px 30px;
+    background-color: #fff;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+    transition: all 0.3s ease;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+  
+  .modal-header h3 {
+    margin-top: 0;
+    color: rgb(30, 30, 30);
+  }
+  
+  .modal-body {
+    margin: 20px 0;
+  }
+  
+  .modal-default-button {
+    float: right;
+  }
+  
+  /*
+   * The following styles are auto-applied to elements with
+   * transition="modal" when their visibility is toggled
+   * by Vue.js.
+   *
+   * You can easily play with the modal transition by editing
+   * these styles.
+   */
+  
+  .modal-enter {
+    opacity: 0;
+  }
+  
+  .modal-leave-active {
+    opacity: 0;
+  }
+  
+  .modal-enter .modal-container,
+  .modal-leave-active .modal-container {
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+  }
+  
