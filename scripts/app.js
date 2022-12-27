@@ -35,11 +35,11 @@ const app = Vue.createApp({
     this.videoLoaded = true; 
   },
   methods: {
-    addFrame(time) {
+    addFrame() {
       var frame ={};
       frame.id = this.frameList.length + 1;
       frame.order = this.frameList.length + 1;
-      frame.time = time;
+      frame.time = this.video.currentTime;
       this.frameList.push(frame);
     },
     saveProject() {
@@ -103,7 +103,7 @@ const app = Vue.createApp({
     formattedTime() {
       var utcString = (new Date(Math.floor(this.sliderValue) * 1000)).toUTCString().match(/(\d\d:\d\d:\d\d)/)[0];
       return utcString.substring(3) + "." + ("000"+parseInt((this.sliderValue*1000)%1000)).slice(-3);
-    }
+    },
   },
   watch: {
     playbackRate(newValue, oldValue)  {
