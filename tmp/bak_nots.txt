@@ -65,3 +65,11 @@
  <div class="leftBox" :style="{width:(config.leftBoxWidth - 2) + '%', left:'1%', top:configMenuVisible?'60px':'10px'}">
   <div class="rightBox"  :style="{width:(config.rightBoxWidth-1) + '%', left:(config.leftBoxWidth)+'%', top:configMenuVisible?'60px':'10px'}">
         
+
+<input type="radio" class="margin-l5" v-model="frameRadioValue" :value="frame.id"> 
+
+<img width="30" src="images\menu.svg" class="pointer" alt="add frame" @click="addFrame"/> 
+
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;

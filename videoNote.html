@@ -8,7 +8,6 @@
     <!--script src="https://unpkg.com/vue@next"></script-->
     <!--script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script-->
     <script src="scripts/vue.global.js"></script>
-    <script src="scripts/axios.js"></script>
     <link type="text/css" rel="stylesheet" href="css/style.css"/> 
     <link rel="shortcut icon" href="#">
   </head>
@@ -57,16 +56,14 @@
         <div class="box rightBox" v-if="!configMenuVisible" :style="{width:(config.rightBoxWidth-1) + '%', left:(config.leftBoxWidth)+'%', height:($refs.leftBox?$refs.leftBox.clientHeight:150)+'px'}">
           <div class="margin-l5" style="padding: 5px;"> 
             <img src="images\plus-circle.svg" class="pointer" alt="add frame" @click="addFrame"/> 
+            <img src="images\remove.svg" class="pointer margin-l5" alt="delete Item" @click="deleteItem" v-if="selectedFrameId>0"/> 
           </div>
-          <div style="width: 30%;"  class="margin-l10 innerBox"  :style="{height:($refs.leftBox?$refs.leftBox.clientHeight-65:90)+'px'}">
-           
-           
-            <div class="frameBox"  v-for="frame in frameList">
-
-            </div>
-           
-          </div>
-        
+          <div style="width: 30%;"  class="margin-l10 innerBox" ref="frameInnerBox" :style="{height:($refs.leftBox?$refs.leftBox.clientHeight-65:90)+'px'}">
+            <div class="frameBox"  v-for="(frame, index) in filteredFrameList" :style="{background:frame.id==selectedFrameId?'yellowgreen':'none'}"  @click="selectFrame(frame)">
+              <span class="frameText">{{("000"+ (index+1)).slice(-3)}}</span> 
+            </div>           
+          </div>    
+          <div></div>  
      
         </div>
         
@@ -95,7 +92,8 @@
 
     
       <a ref="download" id="downloadId" href='#'></a>
-    <script src="C:/Users/hayda/Downloads/project.js"></script>
+      <script src="C:/Users/hayda/Downloads/project.js"></script>
     <script src="scripts/app.js"></script>
+
   </body>
 </html>

@@ -157,7 +157,7 @@ input[type=text]:focus{
   }
   
   ::-webkit-scrollbar-track {
-    background-color: darkgrey;
+    background-color: lightgray;
   }
   
   ::-webkit-scrollbar-thumb {
@@ -173,10 +173,23 @@ input[type=text]:focus{
     margin-left:5%;
     width:90%; 
     margin-top: 5px; 
-    height: 55px;
-
+    padding-top: 5px;
+    padding-bottom: 5px;
+    cursor: pointer;
+    text-align: center;
   }
 
+  .frameBox img {
+    margin-right: 5px;
+  }
+
+
+  .frameText {
+    width: 100%;
+    font-weight: bold;
+    color: rgb(30, 30, 30);
+    font-size: 20px;
+  }
 
   .modal-mask {
     position: fixed;
