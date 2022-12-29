@@ -3,11 +3,6 @@
 commit #15.12.22-01
 
 TO-DO LIST
-- yukarı ve aşağı SVG'leri düzenle
-- yukarı ve aşağı fonksiyonunu yaz
-- aynı time için frame ekleme kontrolü koy
-- set time svg'sini düzenle
-- set time fonksiyonu yaz
 - grid box çerçevesini oluştur
 
 
@@ -30,7 +25,9 @@ const app = Vue.createApp({
       selectedFrameId: 0,
       selectedFrame: null,
       maxFrameId: 0,
-      showModal: false,
+      notificationModal : {
+        showModal:false
+      },
       config: {
         leftBoxWidth: 60,
         rightBoxWidth: 40,
@@ -100,22 +97,29 @@ const app = Vue.createApp({
       this.video.currentTime = evt.target.value;
     },
     addFrame() {
-      var frame = {};
-      this.maxFrameId += 1;
-      frame.id = this.maxFrameId;
-      frame.order = this.maxFrameId
-      frame.time = this.video.currentTime;
-      frame.deleted = 0;
-      this.frameList.push(frame);
-      this.scrollToElement(this.$refs.frameInnerBox);
+      if(this.checkFrameTime()) {
+        var frame = {};
+        this.maxFrameId += 1;
+        frame.id = this.maxFrameId;
+        frame.order = this.maxFrameId
+        frame.time = this.video.currentTime;
+        frame.deleted = 0;
+        this.frameList.push(frame);
+        this.scrollToElement(this.$refs.frameInnerBox);
+        this.selectFrame(frame);
+      }
     },
     selectFrame(selectedFrame) {
       if (this.selectedFrameId == selectedFrame.id) {
         this.selectedFrameId = 0;
         this.selectedFrame = null;
+        this.video.currentTime = 0;
+        this.sliderValue = 0;
       } else {
         this.selectedFrameId = selectedFrame.id;
         this.selectedFrame = selectedFrame;
+        this.video.currentTime = selectedFrame.time;
+        this.sliderValue = selectedFrame.time;
       }
     },
     deleteItem() {
@@ -127,10 +131,82 @@ const app = Vue.createApp({
 
       }
     },
+    swapFramePosition(direction) {
+      var prevIndex = {}, currentIndex = {}, nextIndex = {};
+      for (var i = 0; i < this.filteredFrameList.length; i++) {
+        if(this.filteredFrameList[i].id == this.selectedFrameId) {
+          currentIndex.id = this.filteredFrameList[i].id;
+          currentIndex.order = this.filteredFrameList[i].order;
+          if (i > 0) {
+            prevIndex.id = this.filteredFrameList[i - 1].id;
+            prevIndex.order = this.filteredFrameList[i - 1].order;
+          }
+          if (i < this.filteredFrameList.length - 1) {
+            nextIndex.id = this.filteredFrameList[i + 1].id;
+            nextIndex.order = this.filteredFrameList[i + 1].order;
+          }
+        }
+      }
+
+      if ((direction == 'down' && nextIndex.id) || (direction == 'up' && prevIndex.id)) {
+        for (var i = 0; i < this.frameList.length; i++) {
+          if (this.frameList[i].id == prevIndex.id) {
+            prevIndex.index = i;
+          }
+          else if (this.frameList[i].id == currentIndex.id) {
+            currentIndex.index = i;
+          }
+          else if (this.frameList[i].id == nextIndex.id) {
+            nextIndex.index = i;
+          }
+        }
+
+        if (direction == 'up') {
+          this.frameList[prevIndex.index].order = currentIndex.order;
+          this.frameList[currentIndex.index].order = prevIndex.order;          
+        } else {
+          this.frameList[currentIndex.index].order = nextIndex.order;
+          this.frameList[nextIndex.index].order = currentIndex.order;
+        }
+      }
+    },
+    checkFrameTime() {
+      for (var i = 0; i < this.filteredFrameList.length; i++) {
+        if(this.filteredFrameList[i].time == this.video.currentTime) {
+          this.showWarningMessage("This time already added as frame " + ("000"+ (i+1)).slice(-3));
+          return false;          
+        }
+      }
+      return true;
+    },
+    setFrameTime() {
+      this.selectedFrame.time = this.video.currentTime;
+    },
     scrollToElement(el) {
       if (el) {
         el.scrollTop = el.scrollHeight;
       }
+    },
+    showWarningMessage(text) {
+      this.showNotification("WARNING", "Warning Message", text);
+    },
+    showInfoMessage(text) {
+      this.showNotification("INFO", "Info Message", text);
+    },
+    showErrorMessage(text) {
+      this.showNotification("ERROR", "Error Message", text);
+    },
+    showNotification(type, header, content) {
+      if(type == 'INFO') {
+        this.notificationModal.img = "images/modal-info.svg";
+      } else if(type == 'WARNING') {
+        this.notificationModal.img = "images/modal-warning.svg";
+      } else {
+        this.notificationModal.img = "images/modal-error.svg";
+      }
+      this.notificationModal.header = header;
+      this.notificationModal.content = content;
+      this.notificationModal.showModal = true;      
     }
   },
   computed: {

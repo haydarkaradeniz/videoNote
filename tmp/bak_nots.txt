@@ -73,3 +73,6 @@
     display: -webkit-flex;
     display: flex;
     align-items: center;
+
+
+    SOFTTECH GRİSİ #2D2D2D; SOFTTECH MAVİSİ 8AD5DD
