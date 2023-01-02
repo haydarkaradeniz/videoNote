@@ -3,7 +3,11 @@
 commit #15.12.22-01
 
 TO-DO LIST
-- grid box çerçevesini oluştur
+- addGrid fonksiyonunu yaz
+- gridlere menü ikonu koy, tıklayınca seçili olsun
+- grid butonları sağa yaslı olarak gelsin
+- grid butonlarını farklı renk yap
+- grid içeriğini tasarla
 
 
 
@@ -25,14 +29,16 @@ const app = Vue.createApp({
       selectedFrameId: 0,
       selectedFrame: null,
       maxFrameId: 0,
-      notificationModal : {
-        showModal:false
+      notificationModal: {
+        showModal: false
       },
       config: {
         leftBoxWidth: 60,
         rightBoxWidth: 40,
         videoSrc: null,
         sliderRefreshTime: 1000,
+        frameBoxWidth: 35,
+        gridBoxWidth: 65
       }
     };
   },
@@ -97,17 +103,25 @@ const app = Vue.createApp({
       this.video.currentTime = evt.target.value;
     },
     addFrame() {
-      if(this.checkFrameTime()) {
+      if (this.checkFrameTime()) {
         var frame = {};
         this.maxFrameId += 1;
         frame.id = this.maxFrameId;
         frame.order = this.maxFrameId
         frame.time = this.video.currentTime;
         frame.deleted = 0;
+        frame.gridList = [];
+        frame.selectedGridId = 0;
+        frame.selectedGrid = null;
+        frame.maxGridId = 0;
         this.frameList.push(frame);
         this.scrollToElement(this.$refs.frameInnerBox);
         this.selectFrame(frame);
       }
+    },
+    addGrid() {
+
+
     },
     selectFrame(selectedFrame) {
       if (this.selectedFrameId == selectedFrame.id) {
@@ -134,7 +148,7 @@ const app = Vue.createApp({
     swapFramePosition(direction) {
       var prevIndex = {}, currentIndex = {}, nextIndex = {};
       for (var i = 0; i < this.filteredFrameList.length; i++) {
-        if(this.filteredFrameList[i].id == this.selectedFrameId) {
+        if (this.filteredFrameList[i].id == this.selectedFrameId) {
           currentIndex.id = this.filteredFrameList[i].id;
           currentIndex.order = this.filteredFrameList[i].order;
           if (i > 0) {
@@ -163,7 +177,7 @@ const app = Vue.createApp({
 
         if (direction == 'up') {
           this.frameList[prevIndex.index].order = currentIndex.order;
-          this.frameList[currentIndex.index].order = prevIndex.order;          
+          this.frameList[currentIndex.index].order = prevIndex.order;
         } else {
           this.frameList[currentIndex.index].order = nextIndex.order;
           this.frameList[nextIndex.index].order = currentIndex.order;
@@ -172,9 +186,9 @@ const app = Vue.createApp({
     },
     checkFrameTime() {
       for (var i = 0; i < this.filteredFrameList.length; i++) {
-        if(this.filteredFrameList[i].time == this.video.currentTime) {
-          this.showWarningMessage("This time already added as frame " + ("000"+ (i+1)).slice(-3));
-          return false;          
+        if (this.filteredFrameList[i].time == this.video.currentTime) {
+          this.showWarningMessage("This time already added as frame " + ("000" + (i + 1)).slice(-3));
+          return false;
         }
       }
       return true;
@@ -197,16 +211,16 @@ const app = Vue.createApp({
       this.showNotification("ERROR", "Error Message", text);
     },
     showNotification(type, header, content) {
-      if(type == 'INFO') {
+      if (type == 'INFO') {
         this.notificationModal.img = "images/modal-info.svg";
-      } else if(type == 'WARNING') {
+      } else if (type == 'WARNING') {
         this.notificationModal.img = "images/modal-warning.svg";
       } else {
         this.notificationModal.img = "images/modal-error.svg";
       }
       this.notificationModal.header = header;
       this.notificationModal.content = content;
-      this.notificationModal.showModal = true;      
+      this.notificationModal.showModal = true;
     }
   },
   computed: {

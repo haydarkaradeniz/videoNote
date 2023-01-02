@@ -132,14 +132,21 @@ input[type=text]:focus{
     box-shadow: 0 4px 8px 0 rgba(150, 150, 150, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.79);
   }
 
-  .leftBox {
-    position: absolute;
+  .mainBox {
     top: 10px;
     min-height: 150px;
   }
 
+  .leftBox {
+    position: absolute;
+    
+  }
+
   .rightBox {
     position: absolute;
+  }
+
+  .gridBox {
     top: 10px;
     min-height: 150px;
   }
@@ -178,8 +185,18 @@ input[type=text]:focus{
     cursor: pointer;
     text-align: center;
   }
-
-  .frameBox img {
+  .gridBox {
+    border: solid 1px rgba(150, 150, 150, 0.9);
+    border-radius:5px;
+    margin-left:5%;
+    width:90%; 
+    margin-top: 5px; 
+    padding-top: 5px;
+    padding-bottom: 5px;
+    cursor: pointer;
+  }
+  
+  .gridBox img {
     margin-right: 5px;
   }
 

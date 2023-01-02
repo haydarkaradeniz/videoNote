@@ -36,7 +36,7 @@
 
             
         </div>     
-        <div class="box leftBox" v-if="!configMenuVisible" :style="{width:(config.leftBoxWidth - 2) + '%', left:'1%'}" ref="leftBox">
+        <div class="box leftBox mainBox" v-if="!configMenuVisible" :style="{width:(config.leftBoxWidth - 2) + '%', left:'1%'}" ref="leftBox">
           <div class="margin-l5" style="padding: 5px;">          
             <img src="images\settings-gear.svg" class="pointer" alt="open config settings" width="40" @click="configMenuVisible=!configMenuVisible"/> 
             <img src="images\save-file.svg" class="margin-l5 pointer" width="40" alt="save configuration" @click="saveProject"/>
@@ -53,20 +53,24 @@
             <p id="rangeValue">{{formattedTime}}</p>
           </div>
         </div>
-        <div class="box rightBox" v-if="!configMenuVisible" :style="{width:(config.rightBoxWidth-1) + '%', left:(config.leftBoxWidth)+'%', height:($refs.leftBox?$refs.leftBox.clientHeight:150)+'px'}">
+        <div class="box rightBox mainBox" v-if="!configMenuVisible" :style="{width:(config.rightBoxWidth-1) + '%', left:(config.leftBoxWidth)+'%', height:($refs.leftBox?$refs.leftBox.clientHeight:150)+'px'}">
           <div class="margin-l5" style="padding: 5px;"> 
             <img src="images\plus-circle.svg" class="pointer" alt="add frame" @click="addFrame"/> 
             <img src="images\remove.svg" class="pointer margin-l5" alt="delete Item" @click="deleteItem" v-if="selectedFrameId>0"/> 
             <img src="images\down-arrow.svg" class="pointer margin-l5" alt="down frame Item" @click="swapFramePosition('down')" v-if="selectedFrameId>0"/> 
             <img src="images\up-arrow.svg" class="pointer margin-l5" alt="up frame Item" @click="swapFramePosition('up')" v-if="selectedFrameId>0"/> 
             <img src="images\checked.svg" class="pointer margin-l5" alt="setup frame time" @click="setFrameTime" v-if="selectedFrameId>0"/> 
+            <img src="images\plus-circle.svg" class="pointer margin-r5" style="float:right" alt="add grid" @click="setFrameTime" v-if="selectedFrameId>0"/> 
           </div>
-          <div style="width: 30%;"  class="margin-l10 innerBox" ref="frameInnerBox" :style="{height:($refs.leftBox?$refs.leftBox.clientHeight-65:90)+'px'}">
+          <div :style="{width:(config.frameBoxWidth - 4) + '%', left:'2%',height:($refs.leftBox?$refs.leftBox.clientHeight-65:90)+'px'}"  class="leftBox innerBox" ref="frameInnerBox">
             <div class="frameBox"  v-for="(frame, index) in filteredFrameList" :style="{background:frame.id==selectedFrameId?'yellowgreen':'none'}"  @click="selectFrame(frame)">
               <span class="frameText">{{("000"+ (index+1)).slice(-3)}}</span> 
             </div>           
-          </div>    
-          <div></div>  
+          </div>   
+          <div :style="{width:(config.gridBoxWidth-2) + '%', left:(config.frameBoxWidth)+'%', height:($refs.leftBox?$refs.leftBox.clientHeight-65:90)+'px'}"  class="rightBox innerBox" ref="gridInnerBox">
+           
+          </div>
+          
      
         </div>
         
