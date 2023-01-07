@@ -11,7 +11,7 @@ body {
 
 .disable {
   opacity: 0.3;
-  cursor: default;
+  cursor: not-allowed !important;
 }
 
 .playbackRateBack {
@@ -146,11 +146,6 @@ input[type=text]:focus{
     position: absolute;
   }
 
-  .gridBox {
-    top: 10px;
-    min-height: 150px;
-  }
-
   .innerBox {
     border: solid 1px rgba(150, 150, 150, 0.9);
     border-radius:5px;
@@ -186,26 +181,34 @@ input[type=text]:focus{
     text-align: center;
   }
   .gridBox {
-    border: solid 1px rgba(150, 150, 150, 0.9);
-    border-radius:5px;
-    margin-left:5%;
-    width:90%; 
-    margin-top: 5px; 
-    padding-top: 5px;
-    padding-bottom: 5px;
-    cursor: pointer;
+    height: 22px;
+    margin-left:2%;
+    width:96%; 
+    margin-top: 7px; 
   }
-  
-  .gridBox img {
-    margin-right: 5px;
-  }
-
 
   .frameText {
     width: 100%;
     font-weight: bold;
     color: rgb(30, 30, 30);
     font-size: 20px;
+  }
+
+  .gridText {
+    width: 100%;
+    font-weight: bold;
+    color: rgb(30, 30, 30);
+    font-size: 16px;
+  }
+
+  .gridCell {
+    position: absolute;
+    border: solid 1px rgba(150, 150, 150, 0.9);
+    border-radius:5px;
+    background-color: lightgray;
+    height: 20px;
+    text-align: center;
+    
   }
 
   .modal-mask {

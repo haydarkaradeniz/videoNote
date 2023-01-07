@@ -1,15 +1,12 @@
 /*
 
-commit #15.12.22-01
+commit #07.01.23-01
 
 TO-DO LIST
-- addGrid fonksiyonunu yaz
-- gridlere menü ikonu koy, tıklayınca seçili olsun
-- grid butonları sağa yaslı olarak gelsin
-- grid butonlarını farklı renk yap
+
+
+- change butonu ile seçtiğin box top'ında seçili olduğunu belli eden bir çizgi olsun
 - grid içeriğini tasarla
-
-
 
 
 
@@ -32,6 +29,7 @@ const app = Vue.createApp({
       notificationModal: {
         showModal: false
       },
+      inputMode: "FRAME",
       config: {
         leftBoxWidth: 60,
         rightBoxWidth: 40,
@@ -111,29 +109,60 @@ const app = Vue.createApp({
         frame.time = this.video.currentTime;
         frame.deleted = 0;
         frame.gridList = [];
-        frame.selectedGridId = 0;
-        frame.selectedGrid = null;
+        frame.selectedGridIdList = [];
+        frame.selectedGridList = [];
         frame.maxGridId = 0;
         this.frameList.push(frame);
         this.scrollToElement(this.$refs.frameInnerBox);
         this.selectFrame(frame);
       }
     },
-    addGrid() {
-
-
-    },
     selectFrame(selectedFrame) {
-      if (this.selectedFrameId == selectedFrame.id) {
-        this.selectedFrameId = 0;
-        this.selectedFrame = null;
-        this.video.currentTime = 0;
-        this.sliderValue = 0;
-      } else {
-        this.selectedFrameId = selectedFrame.id;
-        this.selectedFrame = selectedFrame;
-        this.video.currentTime = selectedFrame.time;
-        this.sliderValue = selectedFrame.time;
+      if (this.frameMode) {
+        if (this.selectedFrameId == selectedFrame.id) {
+          this.selectedFrameId = 0;
+          this.selectedFrame = null;
+          this.video.currentTime = 0;
+          this.sliderValue = 0;
+        } else {
+          this.selectedFrameId = selectedFrame.id;
+          this.selectedFrame = selectedFrame;
+          this.video.currentTime = selectedFrame.time;
+          this.sliderValue = selectedFrame.time;
+        }
+      }
+    },
+    changeInputMode() {
+      if (this.changeInputModeAvailable) {
+        this.inputMode = this.inputMode == "FRAME" ? "GRID" : "FRAME";
+      }
+    },
+    addGrid() {
+      var grid = {};
+      this.selectedFrame.maxGridId += 1;
+      grid.id = this.selectedFrame.maxGridId;
+      grid.order = this.selectedFrame.maxGridId;
+      grid.deleted = 0;
+      this.selectedFrame.gridList.push(grid);
+      this.scrollToElement(this.$refs.gridInnerBox);
+    },
+    checkInSelectedGridList(gridId) {
+      for(var i=0; i<this.selectedFrame.selectedGridIdList.length; i++) {
+        if(gridId == this.selectedFrame.selectedGridIdList[i]) {
+          return true;
+        }
+      }
+      return false;
+    },
+    selectGrid(selectedGrid) {
+      if (this.gridMode) {
+        if(!this.selectedFrame.selectedGridIdList.includes(selectedGrid.id)) {
+          this.selectedFrame.selectedGridIdList.push(selectedGrid.id);
+          this.selectedFrame.selectedGridList.push(selectedGrid);
+        } else {
+          this.selectedFrame.selectedGridIdList = this.selectedFrame.selectedGridIdList.filter(o => o !== selectedGrid.id);
+          this.selectedFrame.selectedGridList = this.selectedFrame.gridList.filter(o => this.checkInSelectedGridList(o.id));
+        }
       }
     },
     deleteItem() {
@@ -232,6 +261,24 @@ const app = Vue.createApp({
       return this.frameList
         .filter(o => o.deleted == 0)
         .sort((a, b) => a.order - b.order);
+    },
+    filteredGridList() {
+      if (this.selectedFrame != null) {
+        return this.selectedFrame.gridList
+          .filter(o => o.deleted == 0)
+          .sort((a, b) => a.order - b.order);
+      } else {
+        return [];
+      }
+    },
+    gridMode() {
+      return this.inputMode == "GRID";
+    },
+    frameMode() {
+      return this.inputMode == "FRAME";
+    },
+    changeInputModeAvailable() {
+      return !this.frameMode || this.selectedFrameId > 0;
     },
   },
   watch: {
