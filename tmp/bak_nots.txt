@@ -90,3 +90,45 @@
     padding-top: 5px;
     padding-bottom: 5px;
   }
+
+  swapFramePosition_(direction) {
+      if (this.selectedFrameId > 0) {
+        var prevIndex = {}, currentIndex = {}, nextIndex = {};
+        for (var i = 0; i < this.filteredFrameList.length; i++) {
+          if (this.filteredFrameList[i].id == this.selectedFrameId) {
+            currentIndex.id = this.filteredFrameList[i].id;
+            currentIndex.order = this.filteredFrameList[i].order;
+            if (i > 0) {
+              prevIndex.id = this.filteredFrameList[i - 1].id;
+              prevIndex.order = this.filteredFrameList[i - 1].order;
+            }
+            if (i < this.filteredFrameList.length - 1) {
+              nextIndex.id = this.filteredFrameList[i + 1].id;
+              nextIndex.order = this.filteredFrameList[i + 1].order;
+            }
+          }
+        }
+
+        if ((direction == 'down' && nextIndex.id) || (direction == 'up' && prevIndex.id)) {
+          for (var i = 0; i < this.frameList.length; i++) {
+            if (this.frameList[i].id == prevIndex.id) {
+              prevIndex.index = i;
+            }
+            else if (this.frameList[i].id == currentIndex.id) {
+              currentIndex.index = i;
+            }
+            else if (this.frameList[i].id == nextIndex.id) {
+              nextIndex.index = i;
+            }
+          }
+
+          if (direction == 'up') {
+            this.frameList[prevIndex.index].order = currentIndex.order;
+            this.frameList[currentIndex.index].order = prevIndex.order;
+          } else {
+            this.frameList[currentIndex.index].order = nextIndex.order;
+            this.frameList[nextIndex.index].order = currentIndex.order;
+          }
+        }
+      }
+    },

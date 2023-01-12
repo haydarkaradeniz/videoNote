@@ -1,12 +1,18 @@
 /*
 
-commit #07.01.23-01
+commit #13.01.23-01
 
 TO-DO LIST
 
+-add left , add right butonları ve fonksiyonları
+-clear  butonu ve fonksiyonu
 
+
+
+-delete için confirm
 - change butonu ile seçtiğin box top'ında seçili olduğunu belli eden bir çizgi olsun
 - grid içeriğini tasarla
+
 
 
 
@@ -35,6 +41,7 @@ const app = Vue.createApp({
         rightBoxWidth: 40,
         videoSrc: null,
         sliderRefreshTime: 1000,
+        scrollTime: 100,
         frameBoxWidth: 35,
         gridBoxWidth: 65
       }
@@ -112,8 +119,9 @@ const app = Vue.createApp({
         frame.selectedGridIdList = [];
         frame.selectedGridList = [];
         frame.maxGridId = 0;
+        frame.selectAllGrid = false;
         this.frameList.push(frame);
-        this.scrollToElement(this.$refs.frameInnerBox);
+        setTimeout(() => { this.scrollToElement(this.$refs.frameInnerBox) }, this.config.scrollTime);
         this.selectFrame(frame);
       }
     },
@@ -137,18 +145,24 @@ const app = Vue.createApp({
         this.inputMode = this.inputMode == "FRAME" ? "GRID" : "FRAME";
       }
     },
-    addGrid() {
-      var grid = {};
+    addGrid(grid, scrollElement) {
+      //default values
+      if (grid == null) {
+        grid = {};
+      }
       this.selectedFrame.maxGridId += 1;
       grid.id = this.selectedFrame.maxGridId;
       grid.order = this.selectedFrame.maxGridId;
       grid.deleted = 0;
       this.selectedFrame.gridList.push(grid);
-      this.scrollToElement(this.$refs.gridInnerBox);
+      this.selectedFrame.selectAllGrid = false;
+      if (scrollElement) {
+        setTimeout(() => { this.scrollToElement(this.$refs.gridInnerBox) }, this.config.scrollTime);
+      }
     },
     checkInSelectedGridList(gridId) {
-      for(var i=0; i<this.selectedFrame.selectedGridIdList.length; i++) {
-        if(gridId == this.selectedFrame.selectedGridIdList[i]) {
+      for (var i = 0; i < this.selectedFrame.selectedGridIdList.length; i++) {
+        if (gridId == this.selectedFrame.selectedGridIdList[i]) {
           return true;
         }
       }
@@ -156,63 +170,105 @@ const app = Vue.createApp({
     },
     selectGrid(selectedGrid) {
       if (this.gridMode) {
-        if(!this.selectedFrame.selectedGridIdList.includes(selectedGrid.id)) {
+        if (!this.selectedFrame.selectedGridIdList.includes(selectedGrid.id)) {
           this.selectedFrame.selectedGridIdList.push(selectedGrid.id);
           this.selectedFrame.selectedGridList.push(selectedGrid);
         } else {
           this.selectedFrame.selectedGridIdList = this.selectedFrame.selectedGridIdList.filter(o => o !== selectedGrid.id);
-          this.selectedFrame.selectedGridList = this.selectedFrame.gridList.filter(o => this.checkInSelectedGridList(o.id));
+          this.selectedFrame.selectedGridList = this.filteredGridList.filter(o => this.checkInSelectedGridList(o.id));
         }
+        this.selectedFrame.selectAllGrid = this.selectedFrame.selectedGridList.length != 0 && this.selectedFrame.selectedGridList.length == this.filteredGridList.length;
+      }
+    },
+    selectAllGrid() {
+      if (this.gridMode && this.filteredGridList.length > 0) {
+        this.selectedFrame.selectAllGrid = !this.selectedFrame.selectAllGrid;
+        this.selectedFrame.selectedGridIdList = [];
+        this.selectedFrame.selectedGridIdList.length = 0;
+        this.selectedFrame.selectedGridList = [];
+        this.selectedFrame.selectedGridList.length = 0;
+        if (this.selectedFrame.selectAllGrid) {
+          for (var i = 0; i < this.filteredGridList.length; i++) {
+            this.selectedFrame.selectedGridIdList.push(this.filteredGridList[i].id);
+            this.selectedFrame.selectedGridList.push(this.filteredGridList[i]);
+          }
+        }
+      }
+    },
+    pasteGrid() {
+      if (this.selectedFrame.selectedGridList.length > 0) {
+        do {
+          var cloneGrid = {};
+          //TODO HAYDAR copy grid property 
+          this.selectGrid(this.selectedFrame.selectedGridList[0]);
+          this.addGrid(cloneGrid, this.selectedFrame.selectedGridList.length == 0);
+        } while (this.selectedFrame.selectedGridList.length > 0);
+      }
+    },
+    swapGridPosition() {
+      if (this.selectedFrame.selectedGridIdList.length == 1) {
+
       }
     },
     deleteItem() {
-      if (this.selectedFrameId > 0) {
+      if (this.frameMode && this.selectedFrameId > 0) {
         this.selectedFrame.deleted = 1;
         //default
         this.selectFrame(0);
-      } else {
-
+      } else if (this.gridMode && this.selectedFrame.selectedGridList.length > 0) {
+        do {
+          this.selectedFrame.selectedGridList[0].deleted = 1;
+          this.selectGrid(this.selectedFrame.selectedGridList[0]);
+        } while (this.selectedFrame.selectedGridList.length > 0);
       }
     },
-    swapFramePosition(direction) {
-      var prevIndex = {}, currentIndex = {}, nextIndex = {};
-      for (var i = 0; i < this.filteredFrameList.length; i++) {
-        if (this.filteredFrameList[i].id == this.selectedFrameId) {
-          currentIndex.id = this.filteredFrameList[i].id;
-          currentIndex.order = this.filteredFrameList[i].order;
-          if (i > 0) {
-            prevIndex.id = this.filteredFrameList[i - 1].id;
-            prevIndex.order = this.filteredFrameList[i - 1].order;
-          }
-          if (i < this.filteredFrameList.length - 1) {
-            nextIndex.id = this.filteredFrameList[i + 1].id;
-            nextIndex.order = this.filteredFrameList[i + 1].order;
-          }
-        }
-      }
 
-      if ((direction == 'down' && nextIndex.id) || (direction == 'up' && prevIndex.id)) {
-        for (var i = 0; i < this.frameList.length; i++) {
-          if (this.frameList[i].id == prevIndex.id) {
-            prevIndex.index = i;
-          }
-          else if (this.frameList[i].id == currentIndex.id) {
-            currentIndex.index = i;
-          }
-          else if (this.frameList[i].id == nextIndex.id) {
-            nextIndex.index = i;
+    swapPosition(direction) {
+      if (this.selectedFrameId > 0 || this.selectedFrame.selectedGridIdList.length == 1) {
+        var filteredList = this.frameMode ? this.filteredFrameList : this.filteredGridList;
+        var selectedItemId = this.frameMode ? this.selectedFrameId : this.selectedFrame.selectedGridIdList[0];
+        var itemList = this.frameMode ? this.frameList : this.selectedFrame.gridList;
+        var prevIndex = {}, currentIndex = {}, nextIndex = {};
+
+        for (var i = 0; i < filteredList.length; i++) {
+          if (filteredList[i].id == selectedItemId) {
+            currentIndex.id = filteredList[i].id;
+            currentIndex.order = filteredList[i].order;
+            if (i > 0) {
+              prevIndex.id = filteredList[i - 1].id;
+              prevIndex.order = filteredList[i - 1].order;
+            }
+            if (i < filteredList.length - 1) {
+              nextIndex.id = filteredList[i + 1].id;
+              nextIndex.order = filteredList[i + 1].order;
+            }
           }
         }
 
-        if (direction == 'up') {
-          this.frameList[prevIndex.index].order = currentIndex.order;
-          this.frameList[currentIndex.index].order = prevIndex.order;
-        } else {
-          this.frameList[currentIndex.index].order = nextIndex.order;
-          this.frameList[nextIndex.index].order = currentIndex.order;
+        if ((direction == 'down' && nextIndex.id) || (direction == 'up' && prevIndex.id)) {
+          for (var i = 0; i < itemList.length; i++) {
+            if (itemList[i].id == prevIndex.id) {
+              prevIndex.index = i;
+            }
+            else if (itemList[i].id == currentIndex.id) {
+              currentIndex.index = i;
+            }
+            else if (itemList[i].id == nextIndex.id) {
+              nextIndex.index = i;
+            }
+          }
+
+          if (direction == 'up') {
+            itemList[prevIndex.index].order = currentIndex.order;
+            itemList[currentIndex.index].order = prevIndex.order;
+          } else {
+            itemList[currentIndex.index].order = nextIndex.order;
+            itemList[nextIndex.index].order = currentIndex.order;
+          }
         }
       }
     },
+
     checkFrameTime() {
       for (var i = 0; i < this.filteredFrameList.length; i++) {
         if (this.filteredFrameList[i].time == this.video.currentTime) {
@@ -223,7 +279,9 @@ const app = Vue.createApp({
       return true;
     },
     setFrameTime() {
-      this.selectedFrame.time = this.video.currentTime;
+      if (this.selectedFrameId > 0) {
+        this.selectedFrame.time = this.video.currentTime;
+      }
     },
     scrollToElement(el) {
       if (el) {
@@ -280,6 +338,12 @@ const app = Vue.createApp({
     changeInputModeAvailable() {
       return !this.frameMode || this.selectedFrameId > 0;
     },
+    leftHandRootPosition() {
+      return "---";
+    },
+    rightHandRootPosition() {
+      return "---";
+    }
   },
   watch: {
     playbackRate(newValue, oldValue) {

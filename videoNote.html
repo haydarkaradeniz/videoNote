@@ -57,25 +57,48 @@
           <div class="margin-l5" style="padding: 5px;"> 
           <!-- frame buttons -->
             <img src="images\plus-circle.svg" class="pointer" alt="add frame" @click="addFrame" v-if="frameMode"/> 
-            <img src="images\delete.svg" class="pointer margin-l5" alt="delete Item" @click="deleteItem" v-if="frameMode && selectedFrameId>0"/> 
-            <img src="images\down-arrow.svg" class="pointer margin-l5" alt="down frame Item" @click="swapFramePosition('down')" v-if="frameMode && selectedFrameId>0"/> 
-            <img src="images\up-arrow.svg" class="pointer margin-l5" alt="up frame Item" @click="swapFramePosition('up')" v-if="frameMode && selectedFrameId>0"/> 
-            <img src="images\checked.svg" class="pointer margin-l5" alt="setup frame time" @click="setFrameTime" v-if="frameMode && selectedFrameId>0"/> 
+            <img src="images\delete.svg" class="pointer margin-l5" alt="delete Item" @click="deleteItem" :class="{disable:selectedFrameId==0}" v-if="frameMode"/> 
+            <img src="images\down-arrow.svg" class="pointer margin-l5" alt="down frame Item" @click="swapPosition('down')" :class="{disable:selectedFrameId==0}" v-if="frameMode"/> 
+            <img src="images\up-arrow.svg" class="pointer margin-l5" alt="up frame Item" @click="swapPosition('up')" :class="{disable:selectedFrameId==0}" v-if="frameMode"/> 
+            <img src="images\checked.svg" class="pointer margin-l5" alt="setup frame time" @click="setFrameTime" :class="{disable:selectedFrameId==0}" v-if="frameMode"/> 
           <!-- end of frame buttons -->
           <!-- grid buttons -->
-            <img src="images\plus-circle.svg" class="pointer" alt="add grid" @click="addGrid" v-if="gridMode"/> 
+            <img src="images\plus-circle.svg" class="pointer" alt="add grid" @click="addGrid(null, true)" v-if="gridMode"/> 
+            <img src="images\delete.svg" class="pointer margin-l5" alt="delete Item" @click="deleteItem" :class="{disable:selectedFrame.selectedGridIdList.length==0}" v-if="gridMode"/> 
+            <img src="images\paste-grid.svg" class="pointer margin-l5" alt="paste grid" @click="pasteGrid" :class="{disable:selectedFrame.selectedGridIdList.length==0}" v-if="gridMode"/> 
+            
+            <img src="images\down-arrow.svg" class="pointer margin-l5" alt="down grid Item" @click="swapPosition('down')" :class="{disable:selectedFrame.selectedGridIdList.length!=1}" v-if="gridMode"/> 
+            <img src="images\up-arrow.svg" class="pointer margin-l5" alt="up grid Item" @click="swapPosition('up')" :class="{disable:selectedFrame.selectedGridIdList.length!=1}" v-if="gridMode"/> 
+            
+            <img src="images\clear.svg" class="pointer margin-l5" alt="clear grid" @click="addGrid" v-if="gridMode"/>
           <!-- end of grid buttons -->
             <img src="images\swap.svg" class="pointer margin-r5" style="float:right" :class="{disable:!changeInputModeAvailable}" alt="change input mode" @click="changeInputMode"/> 
           </div>
-          <div :style="{width:(config.frameBoxWidth - 4) + '%', left:'2%',height:($refs.leftBox?$refs.leftBox.clientHeight-65:90)+'px'}"  class="leftBox innerBox" ref="frameInnerBox">
+          <div :style="{width:(config.frameBoxWidth - 4) + '%', left:'2%',height:($refs.leftBox?$refs.leftBox.clientHeight-50:90)+'px'}"  class="leftBox innerBox" ref="frameInnerBox">
             <div class="frameBox" :class="{disable:gridMode}" v-for="(frame, index) in filteredFrameList" :style="{background:frame.id==selectedFrameId?'yellowgreen':'none'}"  @click="selectFrame(frame)">
               <span class="frameText">{{("000"+ (index+1)).slice(-3)}}</span> 
             </div>           
           </div>   
-          <div :style="{width:(config.gridBoxWidth-2) + '%', left:(config.frameBoxWidth)+'%', height:($refs.leftBox?$refs.leftBox.clientHeight-65:90)+'px'}"  class="rightBox innerBox" ref="gridInnerBox">
+
+
+
+
+          <div class="rightBox" style="background-color: #2D2D2D;" :style="{width:(config.gridBoxWidth-2) + '%', left:(config.frameBoxWidth)+'%', height:'22px'}">
+            <img :src="selectedFrameId>0 && selectedFrame.selectAllGrid? 'images/selectedAll.svg':'images/unselectedAll.svg'" class="gridHeaderImg pointer"  :class="{disable:frameMode || filteredGridList.length==0}" @click="selectAllGrid"/>
+            <div class="gridHeaderCell" style="left:16%; width: 18%;">
+              {{leftHandRootPosition}}
+            </div>  
+            <div class="gridHeaderCell" style="left:80%; width: 18%;">
+              {{rightHandRootPosition}}
+            </div>           
+          </div>
+
+
+          <div :style="{width:(config.gridBoxWidth-2) + '%', left:(config.frameBoxWidth)+'%', top:'70px',height:($refs.leftBox?$refs.leftBox.clientHeight-77:90)+'px'}"  class="rightBox innerBox" ref="gridInnerBox">
            
-            <div class="gridBox" :class="{disable:frameMode}" v-for="(grid, index) in filteredGridList">
-              <img :src="checkInSelectedGridList(grid.id)?'images/selected.svg':'images/unselected.svg'" class="pointer" style="position: absolute;" @click="selectGrid(grid)"/>
+            
+            <div class="gridBox" v-for="(grid, index) in filteredGridList">
+              <img :src="checkInSelectedGridList(grid.id)?'images/selected.svg':'images/unselected.svg'" class="pointer" :class="{disable:frameMode}"  style="position: absolute;" @click="selectGrid(grid)"/>
               <div class="gridText gridCell" style="left:16%; width: 18%;">
                 {{("000"+ (index+1)).slice(-3)}}
               </div>       
