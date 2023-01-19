@@ -16,13 +16,13 @@ body {
 
 .playbackRateBack {
   background-image : url("..\\images\\blank-circle.svg");
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
 }
 
 .configTitle {
   position: absolute;
-  top: 10px;
+  top: 4px;
   margin-left: 15px;
   font-size: 26px;
   font-weight: bold;
@@ -54,12 +54,12 @@ input[type=text]:focus{
 }
 
 .playbackRateFront {
-  font-size : 21px;
+  font-size : 16px;
   color:rgb(30, 51, 88);
   font-weight: bolder;
   position: relative;
-  top:9px;
-  left: 6px;
+  top:7px;
+  left: 4px;
 }
 
 .margin-l5 {
@@ -216,7 +216,7 @@ input[type=text]:focus{
     width: 100%;
     font-weight: bold;
     color: #F5FCFF;
-    font-size: 16px;
+    font-size: 18px;
     position: absolute;
     height: 20px;
     text-align: center;    
@@ -275,6 +275,41 @@ input[type=text]:focus{
     text-align: right;
   }
   
+  .gridModalDiv {    
+    height: 40px;
+  }
+
+  .gridModalContent {
+    width: 100%;
+    height: 30px;
+    font-weight: bold;
+    color: rgb(30, 30, 30);
+    font-size: 28px;
+    border: solid 1px rgba(150, 150, 150, 0.9);
+    border-radius:5px;
+    background-color: lightgray;
+    margin-bottom: 10px;
+  }
+
+  /*
+.gridText {
+    width: 100%;
+    font-weight: bold;
+    color: rgb(30, 30, 30);
+    font-size: 16px;
+  }
+
+  .gridCell {
+    position: absolute;
+    border: solid 1px rgba(150, 150, 150, 0.9);
+    border-radius:5px;
+    background-color: lightgray;
+    height: 20px;
+    text-align: center;    
+  }
+
+  */
+
   /*
    * The following styles are auto-applied to elements with
    * transition="modal" when their visibility is toggled

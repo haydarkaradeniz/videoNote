@@ -17,10 +17,35 @@
 
 
 
+      
+      <div class="box topBox" v-if="previewMenuVisible"> 
+        <div class="margin-l5" style="padding: 5px;">          
+          <img src="images\preview.svg" class="pointer" alt="open config settings" width="30" @click="previewMenuVisible=!previewMenuVisible"/> 
+          <span class="configTitle">Project Tablature</span>
+        </div>
+ 
+        <div style="overflow-y: scroll; position:relative" :style="{height:(getScreenHeight()-60)+'px'}">
+          <div class="gridBox" v-for="(grid, index) in getAllGridList()">
+            <div class="gridText gridCell pointer" style="left:7%; width: 20%;">
+              {{grid.leftHandPosition}}
+            </div>       
+            <div class="gridText gridCell pointer" style="left:29%; width: 20%; background-color: rgb(135,170,207);">
+              {{grid.leftHandNote}}
+            </div>    
+            <div class="gridText gridCell pointer" style="left:51%; width: 20%; background-color: rgb(161,229,92);" >
+              {{grid.rightHandNote}}
+            </div> 
+            <div class="gridText gridCell pointer" style="left:73%; width: 20%;">
+              {{grid.rightHandPosition}}
+            </div>           
+          </div>
+        </div>
+      </div>
+
         
-        <div class="box topBox" v-if="configMenuVisible"> 
+        <div class="box topBox" v-if="configMenuVisible && !previewMenuVisible"> 
           <div class="margin-l5" style="padding: 5px;">          
-            <img src="images\settings-gear.svg" class="pointer" alt="open config settings" width="40" @click="configMenuVisible=!configMenuVisible"/> 
+            <img src="images\settings-gear.svg" class="pointer" alt="open config settings" width="30" @click="configMenuVisible=!configMenuVisible"/> 
             <span class="configTitle">Project Configuration</span>
           </div>
 
@@ -36,10 +61,14 @@
 
             
         </div>     
-        <div class="box leftBox mainBox" v-if="!configMenuVisible" :style="{width:(config.leftBoxWidth - 2) + '%', left:'1%'}" ref="leftBox">
+        <div class="box leftBox mainBox" v-if="!configMenuVisible && !previewMenuVisible" :style="{width:(config.leftBoxWidth - 2) + '%', left:'1%'}" ref="leftBox">
           <div class="margin-l5" style="padding: 5px;">          
-            <img src="images\settings-gear.svg" class="pointer" alt="open config settings" width="40" @click="configMenuVisible=!configMenuVisible"/> 
-            <img src="images\save-file.svg" class="margin-l5 pointer" width="40" alt="save configuration" @click="saveProject"/>
+            <img src="images\settings-gear.svg" class="pointer" alt="open config settings" width="30" @click="configMenuVisible=!configMenuVisible"/> 
+            <img src="images\save-file.svg" class="margin-l5 pointer" width="30" alt="save configuration" @click="saveProject"/>
+            
+            <img src="images\preview.svg" class="margin-l5  pointer" alt="preview tablature"  @click="previewMenuVisible=!previewMenuVisible"/>
+            <img src="images\csv.svg" class="margin-l5  pointer" alt="export tablature" @click="exportCsv"/>
+            
             <img src="images\backward.svg" class="margin-l5" :class="{disable:!videoLoaded || sliderValue<playbackRate, pointer:videoLoaded && sliderValue>=playbackRate}" alt="backward video" @click="backwardVideo"/>
             <img :src="!playStatus?'images\\play.svg':'images\\pause.svg'" class="margin-l5" :class="{disable:!videoLoaded, pointer:videoLoaded}"  alt="play video" @click="playVideo" />
             <img src="images\forward.svg" style="float: right;" class="pointer" @click="updatePlaybackRate(1)"/>
@@ -53,29 +82,31 @@
             <p id="rangeValue">{{formattedTime}}</p>
           </div>
         </div>
-        <div class="box rightBox mainBox" v-if="!configMenuVisible" :style="{width:(config.rightBoxWidth-1) + '%', left:(config.leftBoxWidth)+'%', height:($refs.leftBox?$refs.leftBox.clientHeight:150)+'px'}">
+        <div class="box rightBox mainBox" v-if="!configMenuVisible && !previewMenuVisible" :style="{width:(config.rightBoxWidth-1) + '%', left:(config.leftBoxWidth)+'%', height:($refs.leftBox?$refs.leftBox.clientHeight:150)+'px'}">
           <div class="margin-l5" style="padding: 5px;"> 
           <!-- frame buttons -->
             <img src="images\plus-circle.svg" class="pointer" alt="add frame" @click="addFrame" v-if="frameMode"/> 
-            <img src="images\delete.svg" class="pointer margin-l5" alt="delete Item" @click="deleteItem" :class="{disable:selectedFrameId==0}" v-if="frameMode"/> 
+            <img src="images\delete.svg" class="pointer margin-l5" alt="delete Item" @click="showConfirmation('Are you sure you want to delete the selected frame ?',deleteItem)" :class="{disable:selectedFrameId==0}" v-if="frameMode"/> 
             <img src="images\down-arrow.svg" class="pointer margin-l5" alt="down frame Item" @click="swapPosition('down')" :class="{disable:selectedFrameId==0}" v-if="frameMode"/> 
             <img src="images\up-arrow.svg" class="pointer margin-l5" alt="up frame Item" @click="swapPosition('up')" :class="{disable:selectedFrameId==0}" v-if="frameMode"/> 
             <img src="images\checked.svg" class="pointer margin-l5" alt="setup frame time" @click="setFrameTime" :class="{disable:selectedFrameId==0}" v-if="frameMode"/> 
           <!-- end of frame buttons -->
           <!-- grid buttons -->
-            <img src="images\plus-circle.svg" class="pointer" alt="add grid" @click="addGrid(null, true)" v-if="gridMode"/> 
-            <img src="images\delete.svg" class="pointer margin-l5" alt="delete Item" @click="deleteItem" :class="{disable:selectedFrame.selectedGridIdList.length==0}" v-if="gridMode"/> 
-            <img src="images\paste-grid.svg" class="pointer margin-l5" alt="paste grid" @click="pasteGrid" :class="{disable:selectedFrame.selectedGridIdList.length==0}" v-if="gridMode"/> 
+            <img src="images\add-left-hand.svg" class="pointer" alt="add left note grid" @click="showGridModal(initializeGrid({},{}), 'LEFT_HAND_NOTE', true)" v-if="gridMode"/> 
+            <img src="images\plus-circle.svg" class="pointer" alt="add grid" @click="addGrid(null)" v-if="gridMode"/> 
+            <img src="images\add-right-hand.svg" class="pointer" alt="add right note grid" @click="showGridModal(initializeGrid({},{}), 'RIGHT_HAND_NOTE', true)" v-if="gridMode"/> 
+            <img src="images\delete.svg" class="pointer margin-l5" alt="delete Item" @click="showConfirmation('Are you sure you want to delete the selected grid(s) ?',deleteItem)" :class="{disable:selectedFrame.selectedGridIdList.length==0}" v-if="gridMode"/> 
+            <img src="images\paste-grid.svg" class="pointer margin-l5" alt="paste grid" @click="showConfirmation('Are you sure you want to dublicate the selected grid(s) ?',pasteGrid)" :class="{disable:selectedFrame.selectedGridIdList.length==0}" v-if="gridMode"/> 
             
             <img src="images\down-arrow.svg" class="pointer margin-l5" alt="down grid Item" @click="swapPosition('down')" :class="{disable:selectedFrame.selectedGridIdList.length!=1}" v-if="gridMode"/> 
             <img src="images\up-arrow.svg" class="pointer margin-l5" alt="up grid Item" @click="swapPosition('up')" :class="{disable:selectedFrame.selectedGridIdList.length!=1}" v-if="gridMode"/> 
             
-            <img src="images\clear.svg" class="pointer margin-l5" alt="clear grid" @click="addGrid" v-if="gridMode"/>
+            <img src="images\clear.svg" class="pointer margin-l5" alt="clear grid" @click="showConfirmation('Are you sure you want to clear the selected grid(s) ?',clearGrid)" :class="{disable:selectedFrame.selectedGridIdList.length==0}" v-if="gridMode"/>
           <!-- end of grid buttons -->
             <img src="images\swap.svg" class="pointer margin-r5" style="float:right" :class="{disable:!changeInputModeAvailable}" alt="change input mode" @click="changeInputMode"/> 
           </div>
           <div :style="{width:(config.frameBoxWidth - 4) + '%', left:'2%',height:($refs.leftBox?$refs.leftBox.clientHeight-50:90)+'px'}"  class="leftBox innerBox" ref="frameInnerBox">
-            <div class="frameBox" :class="{disable:gridMode}" v-for="(frame, index) in filteredFrameList" :style="{background:frame.id==selectedFrameId?'yellowgreen':'none'}"  @click="selectFrame(frame)">
+            <div class="frameBox" :class="{disable:gridMode}" v-for="(frame, index) in filteredFrameList" :style="{background:frame.id==selectedFrameId?'yellowgreen':'none'}"  @click="selectFrame(frame, index)">
               <span class="frameText">{{("000"+ (index+1)).slice(-3)}}</span> 
             </div>           
           </div>   
@@ -99,17 +130,17 @@
             
             <div class="gridBox" v-for="(grid, index) in filteredGridList">
               <img :src="checkInSelectedGridList(grid.id)?'images/selected.svg':'images/unselected.svg'" class="pointer" :class="{disable:frameMode}"  style="position: absolute;" @click="selectGrid(grid)"/>
-              <div class="gridText gridCell" style="left:16%; width: 18%;">
-                {{("000"+ (index+1)).slice(-3)}}
+              <div class="gridText gridCell pointer" style="left:16%; width: 18%;" :class="{disable:frameMode}" @click="showGridModal(grid, 'LEFT_HAND_POSITION')">
+                {{grid.leftHandPosition}}
               </div>       
-              <div class="gridText gridCell" style="left:36%; width: 20%; background-color: rgb(135,170,207);">
-                {{("000"+ (index+1)).slice(-3)}}
+              <div class="gridText gridCell pointer" style="left:36%; width: 20%; background-color: rgb(135,170,207);" :class="{disable:frameMode}" @click="showGridModal(grid, 'LEFT_HAND_NOTE')">
+                {{grid.leftHandNote}}
               </div>    
-              <div class="gridText gridCell" style="left:58%; width: 20%; background-color: rgb(161,229,92);">
-                {{("000"+ (index+1)).slice(-3)}}
+              <div class="gridText gridCell pointer" style="left:58%; width: 20%; background-color: rgb(161,229,92);" :class="{disable:frameMode}" @click="showGridModal(grid, 'RIGHT_HAND_NOTE')" >
+                {{grid.rightHandNote}}
               </div> 
-              <div class="gridText gridCell" style="left:80%; width: 18%;">
-                {{("000"+ (index+1)).slice(-3)}}
+              <div class="gridText gridCell pointer" style="left:80%; width: 18%;" :class="{disable:frameMode}" @click="showGridModal(grid, 'RIGHT_HAND_POSITION')">
+                {{grid.rightHandPosition}}
               </div>           
             </div>
 
@@ -140,6 +171,77 @@
           </div>
         </div>
 
+        <div class="modal-mask" v-if="confirmationModal.showModal">
+          <div class="modal-wrapper">
+            <div class="modal-container">
+              <div class="modal-header">                                
+                <h3 slot="header"><img src="images\modal-warning.svg" alt="modal info"/> &nbsp;&nbsp;Confirmation Message</h3>               
+              </div>
+              <div class="modal-body">             
+                  {{confirmationModal.content}}              
+              </div>
+              <div class="modal-footer">       
+                <button class="button-3 margin-r5" @click="confirmationModal.callBack(); confirmationModal.showModal = false"> YES</button>         
+                <button class="button-3" @click="confirmationModal.showModal = false"> NO</button>                             
+              </div>
+            </div>
+          </div>
+        </div>        
+
+
+        <div class="modal-mask" v-if="gridModal.showModal">
+          <div class="modal-wrapper">
+            <div class="modal-container" :style="{width: config.gridModalWidth + '%'}">
+              <div class="modal-body" style="text-align: center;">    
+                <div class="modal-header" style="font-weight: bold; margin-bottom: 5px;">                                
+                  {{"<< " + gridModal.description + " >>"}}        
+                </div>
+                <div class="gridModalContent">
+                  {{gridModal.content}}
+                </div>      
+                <div class="gridModalDiv">
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '&nbsp;'"> SPACE </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + ','"> , </button>  
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '.'"> . </button>  
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '\''"> ' </button>                 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content.slice(0,-1)"> BACKSPACE </button> 
+                </div> 
+                <div class="gridModalDiv">
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '-'"> - </button>  
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '0'"> 0 </button>  
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '1'"> 1 </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '2'"> 2 </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '3'"> 3 </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '4'"> 4 </button>                   
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '+'"> + </button> 
+                </div>
+                <div class="gridModalDiv">
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + 'A'"> A </button>  
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + 'B'"> B </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + 'C'"> C </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + 'D'"> D </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + 'E'"> E </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + 'F'"> F </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + 'G'"> G </button>                   
+                </div>
+                <div class="gridModalDiv">
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '('"> ( </button>  
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + ')'"> ) </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '['"> [ </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + ']'"> ] </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '5'"> 5 </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '6'"> 6 </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '7'"> 7 </button> 
+                  <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '8'"> 8 </button>                  
+                </div>
+              </div>
+              <div class="modal-footer">       
+                <button class="button-3 margin-r5" @click="applyGridModal"> APPLY</button>         
+                <button class="button-3" @click="gridModal.showModal = false"> CANCEL</button>                                                 
+              </div>
+            </div>
+          </div>
+        </div>        
     
       <a ref="download" id="downloadId" href='#'></a>
       <script src="C:/Users/hayda/Downloads/project.js"></script>

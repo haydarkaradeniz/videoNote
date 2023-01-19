@@ -1,19 +1,18 @@
 /*
 
-commit #13.01.23-01
+commit #19.01.23-01
 
 TO-DO LIST
 
--add left , add right butonları ve fonksiyonları
--clear  butonu ve fonksiyonu
+
+-grid'i video üzerinde işaretleme?
+-klavuz çizgisi ekleme
 
 
+-tablature ön izleme görsel iyileştirme
 
--delete için confirm
+-initializeGrid fonksiyonunu güncel grid values için değiştir.
 - change butonu ile seçtiğin box top'ında seçili olduğunu belli eden bir çizgi olsun
-- grid içeriğini tasarla
-
-
 
 
 */
@@ -28,12 +27,27 @@ const app = Vue.createApp({
       sliderMax: 0,
       sliderValue: 0,
       configMenuVisible: false,
+      previewMenuVisible: false,
       frameList: [],
       selectedFrameId: 0,
+      selectedFrameIndex: -1,
       selectedFrame: null,
       maxFrameId: 0,
       notificationModal: {
         showModal: false
+      },
+      confirmationModal: {
+        showModal: false,
+        content: "",
+        callBack: null,
+      },
+      gridModal: {
+        grid: null,
+        showModal: false,
+        type: "",
+        content: "",
+        description: "",
+        addGrid: false,
       },
       inputMode: "FRAME",
       config: {
@@ -43,24 +57,101 @@ const app = Vue.createApp({
         sliderRefreshTime: 1000,
         scrollTime: 100,
         frameBoxWidth: 35,
-        gridBoxWidth: 65
+        gridBoxWidth: 65,
+        gridModalWidth: 60,
+        csvMaxRowCount: 49,
+        csvMaxColCount: 2,
+        csvSeperatorColCount: 1
       }
     };
   },
   mounted() {
     this.config = project.config;
+    this.maxFrameId = project.maxFrameId ? project.maxFrameId : 0;
+    this.frameList = project.frameList ? project.frameList : [];
     this.video = this.$refs.video;
     this.videoLoaded = true;
+
+
+
   },
   methods: {
-    saveProject() {
+    getScreenHeight() {
+      return screen.height;
+    },
+    saveFile(fileName, content) {
       var link = this.$refs.download;
+      link.setAttribute('href', encodeURI('data:text/js;charset=utf-8,' + content));
+      link.setAttribute('download', fileName);
+      link.click();
+
+    },
+    saveProject() {
       var project = {};
       project.config = this.config;
+      project.maxFrameId = this.maxFrameId;
+      project.frameList = this.filteredFrameList;
       var content = 'var project = ' + JSON.stringify(project) + ';';
-      link.setAttribute('href', encodeURI('data:text/js;charset=utf-8,' + content));
-      link.setAttribute('download', "project.js");
-      link.click();
+      this.saveFile("project.js", content);
+    },
+    getFileName() {
+      var tmpPath = this.config.videoSrc.split("\\");
+      var tmpFile = tmpPath[tmpPath.length-1].split(".");
+      return tmpFile[0];
+    },
+    getAllGridList() {
+      var allGridList = [];
+      for (var i = 0; i < this.filteredFrameList.length; i++) {
+        var filteredGridList = this.filteredFrameList[i].gridList
+          .filter(o => o.deleted == 0)
+          .sort((a, b) => a.order - b.order);
+        for (var j = 0; j < filteredGridList.length; j++) {
+          allGridList.push(filteredGridList[j]);
+        }
+      }
+      return allGridList;
+    },
+    exportCsv() {
+      var colSeperator = ",";
+      var newLine = "\r\n";
+      var emptyCell = "";
+      var content = "";
+
+      var maxRowCount = this.config.csvMaxRowCount;
+      var maxColCount = this.config.csvMaxColCount;
+      var seperatorColCount = this.config.csvSeperatorColCount;
+
+      var allGridList = this.getAllGridList();
+
+      //each page		
+      for (var p = 0; p < Math.ceil(allGridList.length / (maxRowCount * maxColCount)); p++) {
+        //each row
+        for (var i = 0; i < maxRowCount; i++) {
+          //each column
+          for (var j = 0; j < maxColCount; j++) {
+            var index = (p * maxColCount * maxRowCount) + (j * maxRowCount) + i;
+            if (index < allGridList.length) {
+              content = content
+                + (allGridList[index].leftHandPosition ? allGridList[index].leftHandPosition : emptyCell) + colSeperator
+                + (allGridList[index].leftHandNote ? allGridList[index].leftHandNote : emptyCell) + colSeperator
+                + (allGridList[index].rightHandNote ? allGridList[index].rightHandNote : emptyCell) + colSeperator
+                + (allGridList[index].rightHandPosition ? allGridList[index].rightHandPosition : emptyCell) + colSeperator;
+            } else {
+              content = content
+                + emptyCell + colSeperator
+                + emptyCell + colSeperator
+                + emptyCell + colSeperator
+                + emptyCell + colSeperator;
+            }
+            for(var t=0; t<seperatorColCount; t++) {
+							content = content + colSeperator;						
+						}
+          }
+          content = content + newLine;
+        }
+        content = content + "end of page " + (p+1) + " " + newLine;
+      }
+      this.saveFile(this.getFileName()+".csv", content);
     },
     updatePlaybackRate(sign) {
       if (sign == 0) {
@@ -125,16 +216,18 @@ const app = Vue.createApp({
         this.selectFrame(frame);
       }
     },
-    selectFrame(selectedFrame) {
+    selectFrame(selectedFrame, frameIndex = -1) {
       if (this.frameMode) {
         if (this.selectedFrameId == selectedFrame.id) {
           this.selectedFrameId = 0;
+          this.selectedFrameIndex = -1;
           this.selectedFrame = null;
           this.video.currentTime = 0;
           this.sliderValue = 0;
         } else {
           this.selectedFrameId = selectedFrame.id;
           this.selectedFrame = selectedFrame;
+          this.selectedFrameIndex = frameIndex < 0 ? this.filteredFrameList.length : frameIndex;
           this.video.currentTime = selectedFrame.time;
           this.sliderValue = selectedFrame.time;
         }
@@ -145,10 +238,17 @@ const app = Vue.createApp({
         this.inputMode = this.inputMode == "FRAME" ? "GRID" : "FRAME";
       }
     },
-    addGrid(grid, scrollElement) {
+    initializeGrid(initializedGrid, grid) {
+      initializedGrid.leftHandPosition = grid.leftHandPosition ? grid.leftHandPosition : "";
+      initializedGrid.leftHandNote = grid.leftHandNote ? grid.leftHandNote : "";
+      initializedGrid.rightHandPosition = grid.rightHandPosition ? grid.rightHandPosition : "";
+      initializedGrid.rightHandNote = grid.rightHandNote ? grid.rightHandNote : "";
+      return initializedGrid;
+    },
+    addGrid(grid, scrollElement = true) {
       //default values
       if (grid == null) {
-        grid = {};
+        grid = this.initializeGrid({}, {});
       }
       this.selectedFrame.maxGridId += 1;
       grid.id = this.selectedFrame.maxGridId;
@@ -198,23 +298,17 @@ const app = Vue.createApp({
     pasteGrid() {
       if (this.selectedFrame.selectedGridList.length > 0) {
         do {
-          var cloneGrid = {};
-          //TODO HAYDAR copy grid property 
+          var cloneGrid = this.initializeGrid({}, this.selectedFrame.selectedGridList[0]);
           this.selectGrid(this.selectedFrame.selectedGridList[0]);
           this.addGrid(cloneGrid, this.selectedFrame.selectedGridList.length == 0);
         } while (this.selectedFrame.selectedGridList.length > 0);
       }
     },
-    swapGridPosition() {
-      if (this.selectedFrame.selectedGridIdList.length == 1) {
-
-      }
-    },
     deleteItem() {
       if (this.frameMode && this.selectedFrameId > 0) {
         this.selectedFrame.deleted = 1;
-        //default
-        this.selectFrame(0);
+        //unselect
+        this.selectFrame(this.selectedFrame);
       } else if (this.gridMode && this.selectedFrame.selectedGridList.length > 0) {
         do {
           this.selectedFrame.selectedGridList[0].deleted = 1;
@@ -222,7 +316,14 @@ const app = Vue.createApp({
         } while (this.selectedFrame.selectedGridList.length > 0);
       }
     },
-
+    clearGrid() {
+      if (this.selectedFrame.selectedGridIdList.length > 0) {
+        do {
+          this.initializeGrid(this.selectedFrame.selectedGridList[0], {});
+          this.selectGrid(this.selectedFrame.selectedGridList[0]);
+        } while (this.selectedFrame.selectedGridList.length > 0);
+      }
+    },
     swapPosition(direction) {
       if (this.selectedFrameId > 0 || this.selectedFrame.selectedGridIdList.length == 1) {
         var filteredList = this.frameMode ? this.filteredFrameList : this.filteredGridList;
@@ -268,7 +369,66 @@ const app = Vue.createApp({
         }
       }
     },
-
+    showGridModal(grid, type, addGrid = false) {
+      if (this.gridMode) {
+        this.gridModal.grid = grid;
+        this.gridModal.type = type;
+        this.gridModal.addGrid = addGrid;
+        switch (type) {
+          case "LEFT_HAND_POSITION": {
+            this.gridModal.content = grid.leftHandPosition;
+            this.gridModal.description = "Left Hand Position";
+            break;
+          }
+          case "LEFT_HAND_NOTE": {
+            this.gridModal.content = grid.leftHandNote;
+            this.gridModal.description = "Left Hand Note";
+            break;
+          }
+          case "RIGHT_HAND_POSITION": {
+            this.gridModal.content = grid.rightHandPosition;
+            this.gridModal.description = "Right Hand Position";
+            break;
+          }
+          case "RIGHT_HAND_NOTE": {
+            this.gridModal.content = grid.rightHandNote;
+            this.gridModal.description = "Right Hand Note";
+            break;
+          }
+        }
+        this.gridModal.showModal = true;
+      }
+    },
+    applyGridModal() {
+      var tmpGrid = {};
+      switch (this.gridModal.type) {
+        case "LEFT_HAND_POSITION": {
+          this.gridModal.grid.leftHandPosition = this.gridModal.content;
+          tmpGrid.leftHandPosition = this.gridModal.content;
+          break;
+        }
+        case "LEFT_HAND_NOTE": {
+          this.gridModal.grid.leftHandNote = this.gridModal.content;
+          tmpGrid.leftHandNote = this.gridModal.content;
+          break;
+        }
+        case "RIGHT_HAND_POSITION": {
+          this.gridModal.grid.rightHandPosition = this.gridModal.content;
+          tmpGrid.rightHandPosition = this.gridModal.content;
+          break;
+        }
+        case "RIGHT_HAND_NOTE": {
+          this.gridModal.grid.rightHandNote = this.gridModal.content;
+          tmpGrid.rightHandNote = this.gridModal.content;
+          break;
+        }
+      }
+      if (this.gridModal.addGrid) {
+        this.addGrid(this.gridModal.grid, true);
+        this.gridModal.addGrid = false;
+      }
+      this.gridModal.showModal = false;
+    },
     checkFrameTime() {
       for (var i = 0; i < this.filteredFrameList.length; i++) {
         if (this.filteredFrameList[i].time == this.video.currentTime) {
@@ -308,7 +468,14 @@ const app = Vue.createApp({
       this.notificationModal.header = header;
       this.notificationModal.content = content;
       this.notificationModal.showModal = true;
-    }
+    },
+    showConfirmation(content, callBack) {
+      if ((this.frameMode && this.selectedFrameId > 0) || (this.gridMode && this.selectedFrame.selectedGridIdList.length > 0)) {
+        this.confirmationModal.content = content;
+        this.confirmationModal.callBack = callBack;
+        this.confirmationModal.showModal = true;
+      }
+    },
   },
   computed: {
     formattedTime() {
@@ -339,10 +506,28 @@ const app = Vue.createApp({
       return !this.frameMode || this.selectedFrameId > 0;
     },
     leftHandRootPosition() {
-      return "---";
+      var rootPosition = "---";
+      for (var i = this.selectedFrameIndex; i > -1 && rootPosition == "---"; i--) {
+        for (var j = this.filteredFrameList[i].gridList.length - 1; j > -1; j--) {
+          if (!this.filteredFrameList[i].gridList[j].deleted && this.filteredFrameList[i].gridList[j].leftHandPosition.length > 0) {
+            rootPosition = this.filteredFrameList[i].gridList[j].leftHandPosition;
+            break;
+          }
+        }
+      }
+      return rootPosition;
     },
     rightHandRootPosition() {
-      return "---";
+      var rootPosition = "---";
+      for (var i = this.selectedFrameIndex; i > -1 && rootPosition == "---"; i--) {
+        for (var j = this.filteredFrameList[i].gridList.length - 1; j > -1; j--) {
+          if (!this.filteredFrameList[i].gridList[j].deleted && this.filteredFrameList[i].gridList[j].rightHandPosition.length > 0) {
+            rootPosition = this.filteredFrameList[i].gridList[j].rightHandPosition;
+            break;
+          }
+        }
+      }
+      return rootPosition;
     }
   },
   watch: {
