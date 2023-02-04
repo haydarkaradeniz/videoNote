@@ -16,15 +16,15 @@ body {
 
 .playbackRateBack {
   background-image : url("..\\images\\blank-circle.svg");
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
 }
 
 .configTitle {
   position: absolute;
   top: 4px;
   margin-left: 15px;
-  font-size: 26px;
+  font-size: 36px;
   font-weight: bold;
 }
 
@@ -54,12 +54,12 @@ input[type=text]:focus{
 }
 
 .playbackRateFront {
-  font-size : 16px;
+  font-size : 22px;
   color:rgb(30, 51, 88);
   font-weight: bolder;
   position: relative;
-  top:7px;
-  left: 4px;
+  top:8px;
+  left: 5px;
 }
 
 .margin-l5 {

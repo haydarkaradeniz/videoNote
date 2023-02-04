@@ -20,7 +20,7 @@
       
       <div class="box topBox" v-if="previewMenuVisible"> 
         <div class="margin-l5" style="padding: 5px;">          
-          <img src="images\preview.svg" class="pointer" alt="open config settings" width="30" @click="previewMenuVisible=!previewMenuVisible"/> 
+          <img src="images\preview.svg" class="pointer" alt="open config settings" @click="previewMenuVisible=!previewMenuVisible"/> 
           <span class="configTitle">Project Tablature</span>
         </div>
  
@@ -45,7 +45,7 @@
         
         <div class="box topBox" v-if="configMenuVisible && !previewMenuVisible"> 
           <div class="margin-l5" style="padding: 5px;">          
-            <img src="images\settings-gear.svg" class="pointer" alt="open config settings" width="30" @click="configMenuVisible=!configMenuVisible"/> 
+            <img src="images\settings-gear.svg" class="pointer" alt="open config settings" @click="configMenuVisible=!configMenuVisible"/> 
             <span class="configTitle">Project Configuration</span>
           </div>
 
@@ -63,8 +63,8 @@
         </div>     
         <div class="box leftBox mainBox" v-if="!configMenuVisible && !previewMenuVisible" :style="{width:(config.leftBoxWidth - 2) + '%', left:'1%'}" ref="leftBox">
           <div class="margin-l5" style="padding: 5px;">          
-            <img src="images\settings-gear.svg" class="pointer" alt="open config settings" width="30" @click="configMenuVisible=!configMenuVisible"/> 
-            <img src="images\save-file.svg" class="margin-l5 pointer" width="30" alt="save configuration" @click="saveProject"/>
+            <img src="images\settings-gear.svg" class="pointer" alt="open config settings" @click="configMenuVisible=!configMenuVisible"/> 
+            <img src="images\save-file.svg" class="margin-l5 pointer" width="40" alt="save configuration" @click="saveProject"/>
             
             <img src="images\preview.svg" class="margin-l5  pointer" alt="preview tablature"  @click="previewMenuVisible=!previewMenuVisible"/>
             <img src="images\csv.svg" class="margin-l5  pointer" alt="export tablature" @click="exportCsv"/>
@@ -128,7 +128,7 @@
           </div>
 
 
-          <div :style="{width:(config.gridBoxWidth-2) + '%', left:(config.frameBoxWidth)+'%', top:'70px',height:($refs.leftBox?$refs.leftBox.clientHeight-77:90)+'px'}"  class="rightBox innerBox" ref="gridInnerBox">
+          <div :style="{width:(config.gridBoxWidth-2) + '%', left:(config.frameBoxWidth)+'%', top:'80px',height:($refs.leftBox?$refs.leftBox.clientHeight-85:90)+'px'}"  class="rightBox innerBox" ref="gridInnerBox">
            
             
             <div class="gridBox" v-for="(grid, index) in filteredGridList">
