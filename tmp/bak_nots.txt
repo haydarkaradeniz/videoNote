@@ -132,3 +132,7 @@
         }
       }
     },
+
+
+    <img :src="showArc?'images\\target-on.svg':'images\\target-off.svg'" class="margin-l5" :class="{disable:!gridMode, pointer:gridMode}" alt="show marks" @click="showArc = (gridMode?!showArc:showArc)"/>
+           

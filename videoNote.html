@@ -71,12 +71,15 @@
             
             <img src="images\backward.svg" class="margin-l5" :class="{disable:!videoLoaded || sliderValue<playbackRate, pointer:videoLoaded && sliderValue>=playbackRate}" alt="backward video" @click="backwardVideo"/>
             <img :src="!playStatus?'images\\play.svg':'images\\pause.svg'" class="margin-l5" :class="{disable:!videoLoaded, pointer:videoLoaded}"  alt="play video" @click="playVideo" />
+            <img :src="showArc?'images\\target-on.svg':'images\\target-off.svg'" class="margin-l5 pointer"  alt="show marks" @click="showArc = !showArc"/>
+           
             <img src="images\forward.svg" style="float: right;" class="pointer" @click="updatePlaybackRate(1)"/>
             <span style="float: right;" class="playbackRateBack pointer margin-r5" @click="updatePlaybackRate(0)"><span  class="playbackRateFront">{{parseFloat(playbackRate).toFixed(1)}}</span></span>
             <img src="images\backward.svg" class="pointer margin-r5" style="float: right;" @click="updatePlaybackRate(-1)"/>
 
           </div>
-          <video ref="video" style="width: 100%;" id="videoId" :src="config.videoSrc" @click="play"></video>
+          <canvas ref="canvas" :width="$refs.video?$refs.video.clientWidth:0" :height="$refs.video?$refs.video.clientHeight:0" style="position: absolute;border:1px solid red;"></canvas>
+          <video ref="video" style="width: 100%;" id="videoId" :src="config.videoSrc" @click="setCursorPosition($event)"></video>
           <div class="slider">
             <input type="range" min="0" :max="sliderMax" :value="sliderValue" @input="setCurrentTime($event)">
             <p id="rangeValue">{{formattedTime}}</p>
@@ -235,9 +238,10 @@
                   <button class="button-3 margin-r5" @click="gridModal.content = gridModal.content + '8'"> 8 </button>                  
                 </div>
               </div>
-              <div class="modal-footer">       
+              <div class="modal-footer">    
+                <button class="button-3 margin-r5" @click="gridModal.showModal = false; arcMode = true;" v-if="showArc && (gridModal.type == 'LEFT_HAND_NOTE' || gridModal.type == 'RIGHT_HAND_NOTE')"> ADD MARK</button>   
                 <button class="button-3 margin-r5" @click="applyGridModal"> APPLY</button>         
-                <button class="button-3" @click="gridModal.showModal = false"> CANCEL</button>                                                 
+                <button class="button-3" @click="gridModal.showModal = false"> CANCEL</button>                                               
               </div>
             </div>
           </div>
